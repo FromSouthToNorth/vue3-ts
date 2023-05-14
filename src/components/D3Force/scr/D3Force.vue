@@ -22,17 +22,27 @@ export default defineComponent({
     const types = ['licensing', 'suit', 'resolved']
 
     function chart() {
+      let mouse
       const links = data.links.map(d => Object.create(d))
       const nodes = data.nodes.map(d => Object.create(d))
 
       const simulation = d3.forceSimulation(nodes)
           .force('link', d3.forceLink(links).id(d => d.id))
-          .force('charge', d3.forceManyBody().strength(-400))
+          .force('charge', d3.forceManyBody().strength(-1600))
           .force('x', d3.forceX())
           .force('y', d3.forceY())
 
       const svg = d3.select(svgChart.value)
           .style('font', '12px sans-serif')
+      // .on('mouseleave', function() {
+      //   console.log('svg mouseleave')
+      // })
+      // .on('mousemove', function() {
+      //   console.log('svg mousemove')
+      // })
+      // .on('click', function() {
+      //   console.log('svg clicked')
+      // })
 
       function setSize() {
         const typeHeight = d3.select(typesBox.value).node().getBoundingClientRect().height
@@ -74,6 +84,18 @@ export default defineComponent({
           .attr('stroke', d => color(d.type))
           .attr('marker-end', d => `url(#arrow-${d.type})`)
 
+      function mousemoved(event) {
+        console.log('mousemoved');
+        const [x, y] = d3.pointer(event)
+        mouse = { x, y }
+        simulation.alpha(0.3).restart()
+      }
+
+      function mouseleft() {
+        mouse = null
+      }
+
+      // 拖动
       const drag = (simulation) => {
         function dragstarted(event, d) {
           if (!event.active) simulation.alphaTarget(0.3).restart()
@@ -82,8 +104,9 @@ export default defineComponent({
         }
 
         function dragged(event, d) {
-          d.fx = event.x;
-          d.fy = event.y;
+          mousemoved(event)
+          d.fx = event.x
+          d.fy = event.y
         }
 
         function dragended(event, d) {
@@ -126,19 +149,18 @@ export default defineComponent({
         return `
           M${d.source.x},${d.source.y}
           A${r},${r} 0 0,1 ${d.target.x},${d.target.y}
-        `;
+        `
       }
 
       simulation.on('tick', () => {
         link.attr('d', linkArc);
         node.attr('transform', d => `translate(${d.x},${d.y})`)
-      });
+      })
 
-      console.log(svg)
     }
 
     onMounted(() => {
-      chart();
+      chart()
     })
 
     return {
@@ -158,6 +180,9 @@ export default defineComponent({
   bottom: 0;
   left: 0;
   right: 0;
+}
+.types {
+  padding: 6px;
 }
 .types span {
   display: inline-flex;

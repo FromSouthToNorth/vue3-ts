@@ -1,6 +1,16 @@
 import { createApp } from 'vue'
-import './style.css'
+import './assets/style.css'
 import App from './App.vue'
 import 'uno.css'
+import { setupRouter } from '/@/router';
 
-createApp(App).mount('#app')
+async function bootstrap() {
+  const app = createApp(App)
+
+  setupRouter(app)
+
+  app.mount('#app')
+}
+
+bootstrap()
+

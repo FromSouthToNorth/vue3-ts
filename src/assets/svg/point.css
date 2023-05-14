@@ -1,0 +1,17 @@
+g.point .shadow {
+  fill: none;
+  stroke: #f6634f;
+  stroke-width: 16;
+  stroke-opacity: 0;
+}
+
+g.point ellipse.stroke {
+  display: none;
+}
+
+g.point .stroke {
+  stroke: #444;
+  stroke-width: 1;
+  fill: #fff;
+  pointer-events: fill;
+}

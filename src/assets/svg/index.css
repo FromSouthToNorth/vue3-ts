@@ -1,0 +1,5 @@
+@import "point.css";
+
+.leaflet-overlay-path path {
+  fill: none;
+}

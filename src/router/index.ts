@@ -24,7 +24,7 @@ export const REDIRECT_ROUTE = {
     {
       path: '/d3',
       name: 'd3',
-      component: () => import('/@/views/d3/index.vue  '),
+      component: () => import('/@/views/d3/index.vue'),
       meta: {
         title: 'd3'
       }

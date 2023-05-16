@@ -1,5 +1,6 @@
 @import "leaflet/dist/leaflet.css";
 @import "svg/index.css";
+@import "layout.css";
 /*
   1. Use a more-intuitive box-sizing model.
 */
@@ -84,5 +85,4 @@ p, h1, h2, h3, h4, h5, h6 {
 
 svg {
   color-scheme: none;
-  color: #000;
 }

@@ -2,10 +2,14 @@
   <div class="container">
     <div class="row">
       <div class="col">
-        <D3Force/>
+        <a class="card">
+          <D3Force/>
+        </a>
       </div>
       <div class="col">
-        <D3ColorLegend/>
+        <a class="card">
+          <D3ColorLegend/>
+        </a>
       </div>
     </div>
   </div>

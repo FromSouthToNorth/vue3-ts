@@ -1,12 +1,12 @@
-import { defineConfig } from 'vite';
-import vue from '@vitejs/plugin-vue';
-import { resolve } from 'node:path';
-import UnoCSS from 'unocss/vite';
-import { presetAttributify, presetIcons, presetUno } from 'unocss';
-import { generateModifyVars } from "./src/config/modifyVars";
+import { resolve } from 'node:path'
+import { defineConfig } from 'vite'
+import vue from '@vitejs/plugin-vue'
+import UnoCSS from 'unocss/vite'
+import { presetAttributify, presetIcons, presetUno } from 'unocss'
+import { generateModifyVars } from './src/config/modifyVars'
 
-const root = process.cwd();
-const pathResolve = (pathname: string) => resolve(root, '.', pathname);
+const root = process.cwd()
+const pathResolve = (pathname: string) => resolve(root, '.', pathname)
 // https://vitejs.dev/config/
 export default defineConfig({
 
@@ -21,9 +21,9 @@ export default defineConfig({
             'display': 'inline-block',
             'vertical-align': 'middle',
           },
-        })
-      ]
-    })
+        }),
+      ],
+    }),
   ],
 
   resolve: {
@@ -31,16 +31,16 @@ export default defineConfig({
     alias: [
       {
         find: /\/@\//,
-        replacement: pathResolve('src') + '/'
-      }
-    ]
+        replacement: `${pathResolve('src')}/`,
+      },
+    ],
   },
   css: {
     preprocessorOptions: {
       less: {
         modifyVars: generateModifyVars(),
         javascriptEnabled: true,
-      }
-    }
-  }
+      },
+    },
+  },
 })

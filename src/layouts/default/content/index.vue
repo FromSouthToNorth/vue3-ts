@@ -1,3 +1,13 @@
+<script lang="ts">
+import { defineComponent } from 'vue'
+
+export default defineComponent({
+  name: 'LayoutContent',
+  setup() {
+  },
+})
+</script>
+
 <template>
   <router-view>
     <template #default="{ Component, route }">
@@ -12,16 +22,6 @@
     </template>
   </router-view>
 </template>
-
-<script lang="ts">
-import { defineComponent } from 'vue'
-
-export default defineComponent({
-  name: 'LayoutContent',
-  setup() {
-  }
-})
-</script>
 
 <style scoped>
 </style>

@@ -1,10 +1,10 @@
 <script lang="ts">
-import { defineComponent, ref, toRefs } from 'vue';
-import { prefixCls } from '/@/settings/designSetting';
-import { createAppProviderContext } from './useAppContext';
+import { defineComponent, ref, toRefs } from 'vue'
+import { prefixCls } from '/@/settings/designSetting'
+import { createAppProviderContext } from './useAppContext'
 
 const props = {
-  prefixCls: { type: String, default: prefixCls }
+  prefixCls: { type: String, default: prefixCls },
 }
 
 export default defineComponent({
@@ -12,13 +12,13 @@ export default defineComponent({
   inheritAttrs: false,
   props,
   setup(props, { slots }) {
-    const isMobile = ref(false);
-    const { prefixCls } = toRefs(props);
+    const isMobile = ref(false)
+    const { prefixCls } = toRefs(props)
     // Inject variables into the global
-    createAppProviderContext({ prefixCls, isMobile });
+    createAppProviderContext({ prefixCls, isMobile })
 
-    return () => slots.default?.();
-  }
+    return () => slots.default?.()
+  },
 })
 </script>
 

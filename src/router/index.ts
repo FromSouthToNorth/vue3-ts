@@ -9,7 +9,7 @@ export const REDIRECT_ROUTE = {
   redirect: '/map',
   name: 'Root',
   meta: {
-    title: 'Root'
+    title: 'Root',
   },
   children: [
     {
@@ -17,47 +17,47 @@ export const REDIRECT_ROUTE = {
       name: 'Map',
       component: () => import('/@/views/map/index.vue'),
       meta: {
-        title: 'Map'
-      }
+        title: 'Map',
+      },
     },
     {
       path: '/d3',
       name: 'd3',
       component: () => import('/@/views/d3/index.vue'),
       meta: {
-        title: 'd3'
-      }
+        title: 'd3',
+      },
     },
     {
       path: '/unoCss',
       name: 'unoCss',
       component: () => import('/@/views/unoCss/index.vue'),
       meta: {
-        title: 'unoCss'
-      }
+        title: 'unoCss',
+      },
     },
     {
       path: '/andDesign',
       name: 'andDesign',
       component: () => import('/@/views/andDesign/index.vue'),
       meta: {
-        title: 'andDesign'
-      }
-    }
-  ]
+        title: 'andDesign',
+      },
+    },
+  ],
 }
 
 export const basicRoutes = [
-  REDIRECT_ROUTE
+  REDIRECT_ROUTE,
 ]
 
 export const router = createRouter({
   history: createWebHistory('/'),
   routes: basicRoutes,
   strict: true,
-  scrollBehavior: () => ({ left: 0, top: 0 })
+  scrollBehavior: () => ({ left: 0, top: 0 }),
 })
 
 export function setupRouter(app: App<Element>) {
-  app.use(router);
+  app.use(router)
 }

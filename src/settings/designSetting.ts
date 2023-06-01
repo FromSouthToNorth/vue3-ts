@@ -1,1 +1,1 @@
-export const prefixCls = 'hy';
+export const prefixCls = 'hy'

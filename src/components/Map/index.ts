@@ -1,3 +1,3 @@
-import Map from './scr/index.vue';
+import Map from './scr/index.vue'
 
 export { Map }

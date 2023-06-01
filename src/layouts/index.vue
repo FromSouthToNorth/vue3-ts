@@ -1,16 +1,8 @@
-<template>
-  <Layout :class="prefixCls">
-    <Layout :class="[layoutClass]">
-      <LayoutContent />
-    </Layout>
-  </Layout>
-</template>
-
 <script lang="ts">
-import { Layout } from 'ant-design-vue';
-import { computed, defineComponent } from 'vue';
-import LayoutContent from './default/content/index.vue';
-import { useDesign } from '/@/hooks/web/useDesign';
+import { Layout } from 'ant-design-vue'
+import { computed, defineComponent } from 'vue'
+import LayoutContent from './default/content/index.vue'
+import { useDesign } from '/@/hooks/web/useDesign'
 
 export default defineComponent({
   components: {
@@ -18,20 +10,27 @@ export default defineComponent({
     LayoutContent,
   },
   setup() {
-    const { prefixCls } = useDesign('default-layout');
+    const { prefixCls } = useDesign('default-layout')
     const layoutClass = computed(() => {
-      let cls: string[] = ['ant-layout'];
-      cls.push('ant-layout-has-sider');
-      return cls;
+      const cls: string[] = ['ant-layout']
+      cls.push('ant-layout-has-sider')
+      return cls
     })
     return {
       prefixCls,
-      layoutClass
+      layoutClass,
     }
-  }
+  },
 })
-
 </script>
+
+<template>
+  <Layout :class="prefixCls">
+    <Layout :class="[layoutClass]">
+      <LayoutContent />
+    </Layout>
+  </Layout>
+</template>
 
 <style lang="less" scoped>
 @prefix-cls: ~'@{namespace}-default-layout';

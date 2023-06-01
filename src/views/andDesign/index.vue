@@ -1,3 +1,7 @@
+<script lang="ts" setup>
+import { Button } from 'ant-design-vue'
+</script>
+
 <template>
   <span p-1>
     <Button>
@@ -5,10 +9,6 @@
     </Button>
   </span>
 </template>
-
-<script lang="ts" setup>
-import { Button } from 'ant-design-vue';
-</script>
 
 <style scoped>
 </style>

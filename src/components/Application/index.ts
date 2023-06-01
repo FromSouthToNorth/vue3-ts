@@ -1,6 +1,6 @@
-import { withInstall } from '/@/util/utils';
-import appProvider from './src/AppProvider.vue';
+import { withInstall } from '/@/util/utils'
+import appProvider from './src/AppProvider.vue'
 
-export { useAppProviderContext } from './src/useAppContext';
+export { useAppProviderContext } from './src/useAppContext'
 
-export const AppProvider = withInstall(appProvider);
+export const AppProvider = withInstall(appProvider)

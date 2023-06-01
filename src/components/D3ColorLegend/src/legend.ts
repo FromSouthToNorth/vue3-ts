@@ -11,9 +11,9 @@ function Legend(color, container, {
   marginLeft = 0,
   ticks = width / 64,
   tickFormat,
-  tickValues
+  tickValues,
 } = {}) {
-  console.log('title: ', title);
+  console.log('title: ', title)
 
   function ramp(color, n = 256) {
     const canvas = document.createElement('canvas')
@@ -32,13 +32,13 @@ function Legend(color, container, {
   svg.attr('width', width)
     .attr('height', height)
     .attr('viewBox', [0, 0, width, height])
-    .style("overflow", "visible")
-    .style("display", "block")
+    .style('overflow', 'visible')
+    .style('display', 'block')
 
-  let tickAdjust = (g) => g.selectAll(".tick line")
-    .attr("y1", marginTop + marginBottom - height)
+  let tickAdjust = g => g.selectAll('.tick line')
+    .attr('y1', marginTop + marginBottom - height)
   let x
-  console.log(color.interpolator);
+  console.log(color.interpolator)
   // Continuous
   if (color.interpolate) {
     const n = Math.min(color.domain().length, color.range().length)
@@ -46,13 +46,13 @@ function Legend(color, container, {
     x = color.copy()
       .rangeRound(d3.quantize(d3.interpolate(marginLeft, width - marginRight), n))
 
-    svg.append("image")
-      .attr("x", marginLeft)
-      .attr("y", marginTop)
-      .attr("width", width - marginLeft - marginRight)
-      .attr("height", height - marginTop - marginBottom)
-      .attr("preserveAspectRatio", "none")
-      .attr("xlink:href", ramp(color.copy()
+    svg.append('image')
+      .attr('x', marginLeft)
+      .attr('y', marginTop)
+      .attr('width', width - marginLeft - marginRight)
+      .attr('height', height - marginTop - marginBottom)
+      .attr('preserveAspectRatio', 'none')
+      .attr('xlink:href', ramp(color.copy()
         .domain(d3.quantize(d3.interpolate(0, 1), n)))
         .toDataURL())
   }
@@ -60,20 +60,20 @@ function Legend(color, container, {
   // Sequential
   else if (color.interpolator) {
     x = Object.assign(color.copy()
-        .interpolator(d3.interpolateRound(marginLeft, width - marginRight)),
-      {
-        range() {
-          return [marginLeft, width - marginRight]
-        }
-      })
+      .interpolator(d3.interpolateRound(marginLeft, width - marginRight)),
+    {
+      range() {
+        return [marginLeft, width - marginRight]
+      },
+    })
 
-    svg.append("image")
-      .attr("x", marginLeft)
-      .attr("y", marginTop)
-      .attr("width", width - marginLeft - marginRight)
-      .attr("height", height - marginTop - marginBottom)
-      .attr("preserveAspectRatio", "none")
-      .attr("xlink:href", ramp(color.interpolator())
+    svg.append('image')
+      .attr('x', marginLeft)
+      .attr('y', marginTop)
+      .attr('width', width - marginLeft - marginRight)
+      .attr('height', height - marginTop - marginBottom)
+      .attr('preserveAspectRatio', 'none')
+      .attr('xlink:href', ramp(color.interpolator())
         .toDataURL())
 
     // scaleSequentialQuantile doesn’t implement ticks or tickFormat.
@@ -83,9 +83,8 @@ function Legend(color, container, {
         tickValues = d3.range(n)
           .map(i => d3.quantile(color.domain(), i / (n - 1)))
       }
-      if (typeof tickFormat !== "function") {
-        tickFormat = d3.format(tickFormat === undefined ? ",f" : tickFormat)
-      }
+      if (typeof tickFormat !== 'function')
+        tickFormat = d3.format(tickFormat === undefined ? ',f' : tickFormat)
     }
   }
 
@@ -93,27 +92,29 @@ function Legend(color, container, {
   else if (color.invertExtent) {
     const thresholds
       = color.thresholds ? color.thresholds() // scaleQuantize
-      : color.quantiles ? color.quantiles() // scaleQuantile
-        : color.domain() // scaleThreshold
+        : color.quantiles ? color.quantiles() // scaleQuantile
+          : color.domain() // scaleThreshold
 
     const thresholdFormat
-      = tickFormat === undefined ? d => d
-      : typeof tickFormat === "string" ? d3.format(tickFormat)
-        : tickFormat
+      = tickFormat === undefined
+        ? d => d
+        : typeof tickFormat === 'string'
+          ? d3.format(tickFormat)
+          : tickFormat
 
     x = d3.scaleLinear()
       .domain([-1, color.range().length - 1])
       .rangeRound([marginLeft, width - marginRight])
 
-    svg.append("g")
-      .selectAll("rect")
+    svg.append('g')
+      .selectAll('rect')
       .data(color.range())
-      .join("rect")
-      .attr("x", (d, i) => x(i - 1))
-      .attr("y", marginTop)
-      .attr("width", (d, i) => x(i) - x(i - 1))
-      .attr("height", height - marginTop - marginBottom)
-      .attr("fill", d => d)
+      .join('rect')
+      .attr('x', (d, i) => x(i - 1))
+      .attr('y', marginTop)
+      .attr('width', (d, i) => x(i) - x(i - 1))
+      .attr('height', height - marginTop - marginBottom)
+      .attr('fill', d => d)
 
     tickValues = d3.range(thresholds.length)
     tickFormat = i => thresholdFormat(thresholds[i], i)
@@ -125,37 +126,37 @@ function Legend(color, container, {
       .domain(color.domain())
       .rangeRound([marginLeft, width - marginRight])
 
-    svg.append("g")
-      .selectAll("rect")
+    svg.append('g')
+      .selectAll('rect')
       .data(color.domain())
-      .join("rect")
-      .attr("x", x)
-      .attr("y", marginTop)
-      .attr("width", Math.max(0, x.bandwidth() - 1))
-      .attr("height", height - marginTop - marginBottom)
-      .attr("fill", color)
+      .join('rect')
+      .attr('x', x)
+      .attr('y', marginTop)
+      .attr('width', Math.max(0, x.bandwidth() - 1))
+      .attr('height', height - marginTop - marginBottom)
+      .attr('fill', color)
 
     tickAdjust = () => {
     }
   }
 
-  svg.append("g")
-    .attr("transform", `translate(0,${height - marginBottom})`)
+  svg.append('g')
+    .attr('transform', `translate(0,${height - marginBottom})`)
     .call(d3.axisBottom(x)
-      .ticks(ticks, typeof tickFormat === "string" ? tickFormat : undefined)
-      .tickFormat(typeof tickFormat === "function" ? tickFormat : undefined)
+      .ticks(ticks, typeof tickFormat === 'string' ? tickFormat : undefined)
+      .tickFormat(typeof tickFormat === 'function' ? tickFormat : undefined)
       .tickSize(tickSize)
       .tickValues(tickValues))
     .call(tickAdjust)
-    .call(g => g.select(".domain")
+    .call(g => g.select('.domain')
       .remove())
-    .call(g => g.append("text")
-      .attr("x", marginLeft)
-      .attr("y", marginTop + marginBottom - height - 6)
-      .attr("fill", "currentColor")
-      .attr("text-anchor", "start")
-      .attr("font-weight", "bold")
-      .attr("class", "title")
+    .call(g => g.append('text')
+      .attr('x', marginLeft)
+      .attr('y', marginTop + marginBottom - height - 6)
+      .attr('fill', 'currentColor')
+      .attr('text-anchor', 'start')
+      .attr('font-weight', 'bold')
+      .attr('class', 'title')
       .text(title))
 }
 

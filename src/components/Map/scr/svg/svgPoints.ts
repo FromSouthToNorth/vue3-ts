@@ -42,13 +42,13 @@ export function svgPoints(content) {
       .attr('height', '12px')
 
     const onZoom = () => {
-      groups =
-        groups.merge(enter)
-          .attr('transform', function({ geometry }) {
-            const latLng = L.latLng(geometry.coordinates[1], geometry.coordinates[0]);
-            const { x, y } = map.latLngToLayerPoint(latLng);
+      groups
+        = groups.merge(enter)
+          .attr('transform', ({ geometry }) => {
+            const latLng = L.latLng(geometry.coordinates[1], geometry.coordinates[0])
+            const { x, y } = map.latLngToLayerPoint(latLng)
             return `translate(${x}, ${y})`
-          });
+          })
 
       groups.select('.shadow')
       groups.select('.stroke')

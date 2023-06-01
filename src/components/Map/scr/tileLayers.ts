@@ -1,9 +1,6 @@
 export const tileLayers = [
   {
-    url: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-    options: {
-      key: 'openstreetmap'
-    }
+    url: 'https://services.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'
   },
   {
     url: 'https://api.mapbox.com/styles/v1/openstreetmap/ckasmteyi1tda1ipfis6wqhuq/tiles/256/{z}/{x}/{y}@2x?access_token={access_token}',

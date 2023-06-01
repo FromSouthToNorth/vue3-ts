@@ -1,6 +1,5 @@
 <template>
-  <div id="map-container" ref="mapContainer">
-  </div>
+  <div id="map-container" ref="mapContainer" />
 </template>
 
 <script lang="ts">
@@ -16,7 +15,7 @@ import { svgPoints } from '/@/components/Map/scr/svg/svgPoints';
 export default defineComponent({
   name: 'Map',
   props: props,
-  setup(props) {
+  setup() {
     const mapContainer = ref(null)
     let rect = ref<DOMRect | null>(null)
     let map = ref<any>(null)
@@ -35,14 +34,14 @@ export default defineComponent({
       initSvg(_map)
     })
 
-    function init(map) {
+    function init(map: any) {
       tileLayers.forEach(layer => {
         L.tileLayer(layer.url, layer.options)
             .addTo(map);
       })
     }
 
-    function initSvg(map) {
+    function initSvg(map: any) {
       L.svg({}).addTo(map)
       svg.value = d3.select(map.getPanes()['overlayPane']).select('svg').attr('pointer-events', 'auto')
       
@@ -51,15 +50,6 @@ export default defineComponent({
       })
       const svgPoint = svgPoints({ map });
       svgPoint(svg.value, points)
-    }
-
-    function setSize() {
-      const observer = new ResizeObserver(e => {
-        const { width, height } = e[0].contentRect;
-        const _svg = toRaw(svg.value);
-        _svg.attr('width', width).attr('height', height)
-      })
-      observer.observe(mapContainer.value)
     }
 
     return { mapContainer, rect, map }

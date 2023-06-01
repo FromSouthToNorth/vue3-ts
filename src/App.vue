@@ -1,11 +1,14 @@
 <script setup lang="ts">
-import AppProvider from "/@/components/Application/src/AppProvider.vue";
+import { ConfigProvider } from 'ant-design-vue';
+import { AppProvider } from '/@/components/Application';
 </script>
 
 <template>
-  <AppProvider>
-    <router-view/>
-  </AppProvider>
+  <ConfigProvider>
+    <AppProvider>
+      <router-view/>
+    </AppProvider>
+  </ConfigProvider>
 </template>
 
 <style scoped></style>

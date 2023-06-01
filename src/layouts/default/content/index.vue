@@ -1,7 +1,16 @@
 <template>
-  <div class="layout">
-    <router-view />
-  </div>
+  <router-view>
+    <template #default="{ Component, route }">
+      <transition
+        mode="out-in"
+        appear
+      >
+        <keep-alive>
+          <component :is="Component" :key="route.fullPath" />
+        </keep-alive>
+      </transition>
+    </template>
+  </router-view>
 </template>
 
 <script lang="ts">
@@ -10,11 +19,9 @@ import { defineComponent } from 'vue'
 export default defineComponent({
   name: 'LayoutContent',
   setup() {
-    return {}
   }
 })
 </script>
 
 <style scoped>
-
 </style>

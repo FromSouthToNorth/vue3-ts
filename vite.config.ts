@@ -3,6 +3,7 @@ import vue from '@vitejs/plugin-vue'
 import { resolve } from 'node:path'
 import UnoCSS from 'unocss/vite'
 import { presetAttributify, presetIcons, presetUno } from 'unocss'
+import { generateModifyVars } from "./src/config/modifyVars";
 
 const root = process.cwd();
 const pathResolve = (pathname: string) => resolve(root, '.', pathname);
@@ -24,5 +25,13 @@ export default defineConfig({
         replacement: pathResolve('src') + '/'
       }
     ]
+  },
+  css: {
+    preprocessorOptions: {
+      less: {
+        modifyVars: generateModifyVars(),
+        javascriptEnabled: true,
+      }
+    }
   }
 })

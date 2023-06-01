@@ -35,6 +35,14 @@ export const REDIRECT_ROUTE = {
       meta: {
         title: 'unoCss'
       }
+    },
+    {
+      path: '/andDesign',
+      name: 'andDesign',
+      component: () => import('/@/views/andDesign/index.vue'),
+      meta: {
+        title: 'andDesign'
+      }
     }
   ]
 }

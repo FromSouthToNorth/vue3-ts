@@ -3,7 +3,6 @@ import { createRouter, createWebHistory } from 'vue-router'
 
 export const LAYOUT = () => import('/@/layouts/index.vue')
 
-
 export const REDIRECT_ROUTE = {
   path: '/',
   component: LAYOUT,
@@ -27,6 +26,14 @@ export const REDIRECT_ROUTE = {
       component: () => import('/@/views/d3/index.vue'),
       meta: {
         title: 'd3'
+      }
+    },
+    {
+      path: '/unoCss',
+      name: 'unoCss',
+      component: () => import('/@/views/unoCss/index.vue'),
+      meta: {
+        title: 'unoCss'
       }
     }
   ]

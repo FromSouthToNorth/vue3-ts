@@ -1,8 +1,11 @@
 <script setup lang="ts">
+import AppProvider from "/@/components/Application/src/AppProvider.vue";
 </script>
 
 <template>
-  <router-view />
+  <AppProvider>
+    <router-view/>
+  </AppProvider>
 </template>
 
 <style scoped></style>

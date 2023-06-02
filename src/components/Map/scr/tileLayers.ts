@@ -7,7 +7,6 @@ export const tileLayers = [
     options: {
       access_token: 'pk.eyJ1Ijoib3BlbnN0cmVldG1hcCIsImEiOiJjbGRlaXd3cHUwYXN3M29waWp0bGNnYWdyIn0.RRlhUnKlUFNhKsKjhaZ2zA',
       key: 'Position Assist Overlay',
-      maxZoom: 16,
     },
   },
 ]

@@ -1,3 +1,3 @@
-import Map from './scr/index.vue'
+import LeafletMap from './scr/index.vue'
 
-export { Map }
+export { LeafletMap }

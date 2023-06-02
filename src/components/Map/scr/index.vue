@@ -9,7 +9,7 @@ import cd from '/@/data/cd.json'
 import { svgPoints } from '/@/components/Map/scr/svg/svgPoints'
 
 export default defineComponent({
-  name: 'Map',
+  name: 'LeafletMap',
   props,
   setup() {
     const mapContainer = ref(null)

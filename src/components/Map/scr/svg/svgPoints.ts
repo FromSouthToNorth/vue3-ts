@@ -1,15 +1,13 @@
-import { toRaw } from 'vue'
+export function svgPoints(content: any) {
+  const { map } = content
 
-export function svgPoints(content) {
-  const map = toRaw(content.map)
-
-  function markerPath(selection, klass) {
+  function markerPath(selection: any, klass: string) {
     selection.attr('class', klass)
       .attr('transform', 'translate(-8, -23)')
       .attr('d', 'M 17,8 C 17,13 11,21 8.5,23.5 C 6,21 0,13 0,8 C 0,4 4,-0.5 8.5,-0.5 C 13,-0.5 17,4 17,8 z')
   }
 
-  function drawPoints(selection, data) {
+  function drawPoints(selection: any, data: any) {
     selection.append('g')
       .attr('class', 'points')
 
@@ -44,8 +42,8 @@ export function svgPoints(content) {
     const onZoom = () => {
       groups
         = groups.merge(enter)
-          .attr('transform', ({ geometry }) => {
-            const latLng = L.latLng(geometry.coordinates[1], geometry.coordinates[0])
+          .attr('transform', (d: any) => {
+            const latLng = L.latLng(d.geometry.coordinates[1], d.geometry.coordinates[0])
             const { x, y } = map.latLngToLayerPoint(latLng)
             return `translate(${x}, ${y})`
           })

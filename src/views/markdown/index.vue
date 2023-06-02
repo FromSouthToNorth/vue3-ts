@@ -61,8 +61,14 @@ export default defineComponent({
 </script>
 
 <template>
-  <MarkDown v-model:value="value" @change="handleChange" />
-  <MarkDownViewer v-model:value="value" />
+  <div p-2>
+    <div>
+      <MarkDown v-model:value="value" @change="handleChange" />
+    </div>
+    <div mt-2>
+      <MarkDownViewer v-model:value="value" />
+    </div>
+  </div>
 </template>
 
 <style scoped>

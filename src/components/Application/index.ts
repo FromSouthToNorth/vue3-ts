@@ -1,4 +1,4 @@
-import { withInstall } from '/@/util/utils'
+import { withInstall } from '/@/util'
 import appProvider from './src/AppProvider.vue'
 
 export { useAppProviderContext } from './src/useAppContext'

@@ -44,6 +44,14 @@ export const REDIRECT_ROUTE = {
         title: 'andDesign',
       },
     },
+    {
+      path: '/markdown',
+      name: 'markdown',
+      component: () => import('/@/views/markdown/index.vue'),
+      meta: {
+        title: 'markdown',
+      },
+    },
   ],
 }
 

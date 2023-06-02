@@ -1,5 +1,5 @@
 <script lang="ts">
-import { defineComponent, onMounted, ref, toRaw } from 'vue'
+import { defineComponent, onMounted, ref, unref } from 'vue'
 
 import { props } from './props'
 import * as d3 from 'd3'
@@ -25,7 +25,7 @@ export default defineComponent({
         maxZoom: 18,
         center: [30.66071, 104.06167],
       })
-      const _map = toRaw(map.value)
+      const _map: any = unref(map)
       init(_map)
       initSvg(_map)
     })

@@ -76,7 +76,6 @@ export default defineComponent({
         .attr('marker-end', d => `url(#arrow-${d.type})`)
 
       function mousemoved(event) {
-        console.log('mousemoved')
         const [x, y] = d3.pointer(event)
         mouse = { x, y }
         simulation.alpha(0.3).restart()

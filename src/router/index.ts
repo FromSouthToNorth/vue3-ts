@@ -1,23 +1,24 @@
 import type { App } from 'vue'
 import { createRouter, createWebHistory } from 'vue-router'
+import { MAP_ROUTERR } from './constant'
 
-export const LAYOUT = () => import('/@/layouts/index.vue')
+export const LAYOUT = () => import('/@/layouts/default/index.vue')
 
 export const REDIRECT_ROUTE = {
   path: '/',
   component: LAYOUT,
-  redirect: '/map',
+  redirect: MAP_ROUTERR,
   name: 'Root',
   meta: {
     title: 'Root',
   },
   children: [
     {
-      path: '/map',
+      path: MAP_ROUTERR,
       name: 'Map',
       component: () => import('/@/views/map/index.vue'),
       meta: {
-        title: 'Map',
+        title: '地图',
       },
     },
     {

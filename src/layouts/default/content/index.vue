@@ -2,22 +2,25 @@
 import { defineComponent } from 'vue'
 import PageLayout from '/@/layouts/page/index.vue'
 import { useDesign } from '/@/hooks/web/useDesign'
+import { useRootSetting } from '/@/hooks/setting/useRootSetting'
 
 export default defineComponent({
   name: 'LayoutContent',
   components: { PageLayout },
   setup() {
     const { prefixCls } = useDesign('layout-content')
+    const { getPageLoading } = useRootSetting()
 
     return {
       prefixCls,
+      getPageLoading,
     }
   },
 })
 </script>
 
 <template>
-  <div :class="[prefixCls]">
+  <div v-loading="getPageLoading" :class="[prefixCls]">
     <PageLayout />
   </div>
 </template>

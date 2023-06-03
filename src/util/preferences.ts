@@ -25,7 +25,7 @@ const _listeners: any = {}
  * @param {string?} v
  * @returns {boolean} true if the action succeeded
  */
-function preferences(k: string, v: any) {
+function preferences(k: string, v?: any) {
   try {
     if (v === undefined)
       return _storage.getItem(k)

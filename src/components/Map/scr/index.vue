@@ -2,11 +2,12 @@
 import { defineComponent, onMounted, ref, unref } from 'vue'
 
 import { props } from './props'
-import { select as d3_select } from 'd3-selection'
+import * as d3 from 'd3'
 import * as L from 'leaflet'
 import { tileLayers } from './tileLayers'
 import cd from '/@/data/cd.json'
 import { svgPoints } from '/@/components/Map/scr/svg/svgPoints'
+import { behaviorHash } from '/@/hooks/core/useHash'
 
 export default defineComponent({
   name: 'LeafletMap',
@@ -18,7 +19,7 @@ export default defineComponent({
     const svg = ref<Element | null>(null)
 
     onMounted(() => {
-      rect.value = d3_select(mapContainer.value).node().getBoundingClientRect()
+      rect.value = d3.select(mapContainer.value).node().getBoundingClientRect()
       map.value = L.map(mapContainer.value, {
         zoom: 5,
         minZoom: 2,
@@ -26,6 +27,8 @@ export default defineComponent({
         center: [30.66071, 104.06167],
       })
       const _map: any = unref(map)
+      const hash = behaviorHash({ map: _map })
+      hash()
       init(_map)
       initSvg(_map)
     })
@@ -39,7 +42,7 @@ export default defineComponent({
 
     function initSvg(map: any) {
       L.svg({}).addTo(map)
-      svg.value = d3_select(map.getPanes().overlayPane).select('svg').attr('pointer-events', 'auto')
+      svg.value = d3.select(map.getPanes().overlayPane).select('svg').attr('pointer-events', 'auto')
 
       const points = cd.features.filter((feature) => {
         return feature.geometry.type === 'Point'

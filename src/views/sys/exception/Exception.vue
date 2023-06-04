@@ -64,7 +64,7 @@ export default defineComponent({
     return () => {
       const { title, subTitle, btnText, icon, handler, status } = unref(getMapValue) || {}
       return (
-      <Result
+        <Result
           class={prefixCls}
           status={status as any}
           title={props.title || title}

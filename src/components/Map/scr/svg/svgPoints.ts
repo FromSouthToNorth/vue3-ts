@@ -1,6 +1,9 @@
 export function svgPoints(content: any) {
   const { map } = content
 
+  // use pointer events on supported platforms; fallback to mouse events
+  const _pointerPrefix: string = 'PointerEvent' in window ? 'pointer' : 'mouse'
+
   function markerPath(selection: any, klass: string) {
     selection.attr('class', klass)
       .attr('transform', 'translate(-8, -23)')
@@ -21,6 +24,14 @@ export function svgPoints(content: any) {
       .append('g')
       .attr('class', 'node point')
     enter.append('path')
+      .on(`${_pointerPrefix}over.hover`, (d: any) => {
+        d.target.classList.add('hover')
+      })
+      .on(`${_pointerPrefix}out.hover`, (d: any) => {
+        d.target.classList.remove('hover')
+      })
+      .on(`${_pointerPrefix}down.hover`, () => {
+      })
       .call(markerPath, 'shadow')
 
     enter.append('ellipse')
@@ -42,7 +53,7 @@ export function svgPoints(content: any) {
     const onZoom = () => {
       groups
         = groups.merge(enter)
-          .attr('transform', (d: any) => {
+          .attr('transform', (d: any): string => {
             const latLng = L.latLng(d.geometry.coordinates[1], d.geometry.coordinates[0])
             const { x, y } = map.latLngToLayerPoint(latLng)
             return `translate(${x}, ${y})`
@@ -54,6 +65,13 @@ export function svgPoints(content: any) {
 
     onZoom()
     map.on('zoom', onZoom)
+  }
+
+  function eventTarget(d3_event: any): object | null {
+    const datum: object = d3_event.target && d3_event.target.__data__
+    if (typeof datum !== 'object')
+      return null
+    return datum
   }
 
   return drawPoints

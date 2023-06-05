@@ -1,4 +1,4 @@
-<script lang="ts">
+<script lang="tsx">
 import { defineComponent, onMounted, ref, unref } from 'vue'
 
 import { props } from './props'
@@ -51,14 +51,14 @@ export default defineComponent({
       svgPoint(svg.value, points)
     }
 
-    return { mapContainer, rect, map }
+    return () => {
+      return (
+        <div id='map-container' ref={mapContainer} />
+      )
+    }
   },
 })
 </script>
-
-<template>
-  <div id="map-container" ref="mapContainer" />
-</template>
 
 <style scoped>
 #map-container {

@@ -49,6 +49,9 @@ export default defineComponent({
       })
       const svgPoint = svgPoints({ map })
       svgPoint(svg.value, points)
+      map.on('moveend', () => {
+        svgPoint(svg.value, points)
+      })
     }
 
     return () => {

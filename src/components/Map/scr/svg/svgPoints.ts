@@ -10,13 +10,49 @@ export function svgPoints(content: any) {
       .attr('d', 'M 17,8 C 17,13 11,21 8.5,23.5 C 6,21 0,13 0,8 C 0,4 4,-0.5 8.5,-0.5 C 13,-0.5 17,4 17,8 z')
   }
 
-  function drawPoints(selection: any, data: any) {
+  // function eventTarget(d3_event: any): object | null {
+  //   const datum: object = d3_event.target && d3_event.target.__data__
+  //   if (typeof datum !== 'object')
+  //     return null
+  //   return datum
+  // }
+
+  function boundContains(map: any, coordinates: Array<number>): boolean {
+    return map.getBounds()
+      .contains(L.latLng(coordinates[1], coordinates[0]))
+  }
+
+  function svgPointTransform(map: any, point: any): string {
+    const latLng = L.latLng(
+      point.geometry.coordinates[1],
+      point.geometry.coordinates[0],
+    )
+    const { x, y } = map
+      .latLngToLayerPoint(latLng)
+    return `translate(${x}, ${y})`
+  }
+
+  function sortY(a: any, b: any) {
+    return a.geometry.coordinates[1] - b.geometry.coordinates[1]
+  }
+
+  function drawPoints(selection: any, entities: Array<any>) {
     selection.append('g')
       .attr('class', 'points')
 
+    function renderAsPoint(entity: any) {
+      const { geometry } = entity
+      return map.getZoom() >= 16 && geometry.type === 'Point'
+       && (boundContains(map, geometry.coordinates))
+    }
+
+    const points = entities.filter(renderAsPoint)
+
+    points.sort(sortY)
+
     const drawLayer = selection.selectAll('.points')
     let groups = drawLayer.selectAll('g.point')
-      .data(data)
+      .data(points)
 
     groups.exit().remove()
 
@@ -50,28 +86,14 @@ export function svgPoints(content: any) {
       .attr('width', '12px')
       .attr('height', '12px')
 
-    const onZoom = () => {
-      groups
-        = groups.merge(enter)
-          .attr('transform', (d: any): string => {
-            const latLng = L.latLng(d.geometry.coordinates[1], d.geometry.coordinates[0])
-            const { x, y } = map.latLngToLayerPoint(latLng)
-            return `translate(${x}, ${y})`
-          })
+    groups
+      = groups.merge(enter)
+        .attr('transform', (d: any): string => {
+          return svgPointTransform(map, d)
+        })
 
-      groups.select('.shadow')
-      groups.select('.stroke')
-    }
-
-    onZoom()
-    map.on('zoom', onZoom)
-  }
-
-  function eventTarget(d3_event: any): object | null {
-    const datum: object = d3_event.target && d3_event.target.__data__
-    if (typeof datum !== 'object')
-      return null
-    return datum
+    groups.select('.shadow')
+    groups.select('.stroke')
   }
 
   return drawPoints

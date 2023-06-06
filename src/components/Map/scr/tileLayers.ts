@@ -12,5 +12,5 @@ export const tileLayers = [
 ]
 
 export const miniTileLayer = {
-  url: 'https://map.geoq.cn/ArcGIS/rest/services/ChinaOnlineCommunity/MapServer/tile/{z}/{y}/{x}?blankTile=false',
+  url: 'https://{s}.tile.openstreetmap.de/{z}/{x}/{y}.png',
 }

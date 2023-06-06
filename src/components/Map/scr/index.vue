@@ -58,7 +58,10 @@ export default defineComponent({
           .addTo(map)
       })
       L.control.scale().addTo(map)
-      new L.Control.MiniMap(L.tileLayer(miniTileLayer.url)).addTo(map)
+      new L.Control.MiniMap(
+        L.tileLayer(miniTileLayer.url),
+        { toggleDisplay: true },
+      ).addTo(map)
 
       L.svg({}).addTo(map)
       svg.value = d3.select(map.getPanes().overlayPane)

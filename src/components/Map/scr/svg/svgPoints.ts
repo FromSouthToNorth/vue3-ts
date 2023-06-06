@@ -17,10 +17,10 @@ export function svgPoints(content: any) {
   //   return datum
   // }
 
-  function boundContains(map: any, coordinates: Array<number>): boolean {
-    return map.getBounds()
-      .contains(L.latLng(coordinates[1], coordinates[0]))
-  }
+  // function boundContains(map: any, coordinates: Array<number>): boolean {
+  //   return map.getBounds()
+  //     .contains(L.latLng(coordinates[1], coordinates[0]))
+  // }
 
   function svgPointTransform(map: any, point: any): string {
     const latLng = L.latLng(
@@ -37,28 +37,26 @@ export function svgPoints(content: any) {
   }
 
   function drawPoints(selection: any, entities: Array<any>) {
-    selection.append('g')
-      .attr('class', 'points')
+    // function renderAsPoint(entity: any) {
+    //   const { geometry } = entity
+    //   return map.getZoom() >= 16 && geometry.type === 'Point'
+    //    && (boundContains(map, geometry.coordinates))
+    // }
 
-    function renderAsPoint(entity: any) {
-      const { geometry } = entity
-      return map.getZoom() >= 16 && geometry.type === 'Point'
-       && (boundContains(map, geometry.coordinates))
-    }
+    // const points = entities.filter(renderAsPoint)
 
-    const points = entities.filter(renderAsPoint)
-
-    points.sort(sortY)
+    entities.sort(sortY)
 
     const drawLayer = selection.selectAll('.points')
     let groups = drawLayer.selectAll('g.point')
-      .data(points)
+      .data(entities)
 
     groups.exit().remove()
 
     const enter = groups.enter()
       .append('g')
       .attr('class', 'node point')
+
     enter.append('path')
       .on(`${_pointerPrefix}over.hover`, (d: any) => {
         d.target.classList.add('hover')

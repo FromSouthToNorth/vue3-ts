@@ -19,6 +19,7 @@
     "d3-geo": "^3.1.0",
     "d3-tile": "^1.0.0",
     "leaflet": "^1.9.3",
+    "leaflet-minimap": "^3.6.1",
     "lodash-es": "^4.17.21",
     "pinia": "^2.0.35",
     "rbush": "^3.0.1",

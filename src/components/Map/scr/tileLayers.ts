@@ -12,5 +12,5 @@ export const tileLayers = [
 ]
 
 export const miniTileLayer = {
-  url: 'https://{s}.tile.openstreetmap.de/{z}/{x}/{y}.png',
+  url: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
 }

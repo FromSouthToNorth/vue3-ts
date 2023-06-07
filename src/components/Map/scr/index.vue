@@ -12,6 +12,9 @@ import { svgPoints } from '/@/components/Map/scr/svg/svgPoints'
 import { behaviorHash } from '/@/hooks/core/useHash'
 import { GeometryTypeEnum } from '/@/enums/geometryTypeEnum'
 import login from '/@/assets/images/logo.png'
+
+import area from '@turf/area'
+import length from '@turf/length'
 import { svgTagClasses } from './tag/tag_classes'
 import { miniTileLayer, tileLayers } from './tileLayers'
 
@@ -34,7 +37,7 @@ export default defineComponent({
     const lineJSON = ref<any>(null)
 
     function layerInfo(layer: any) {
-      const { properties } = layer.feature
+      const { properties, geometry } = layer.feature
       const _legendRef = unref(legendRef)
       _legendRef.selectAll('p').remove()
       Object.keys(properties).forEach((key) => {
@@ -42,6 +45,19 @@ export default defineComponent({
         p.append('span').text(`${key}:`)
         p.append('b').text(properties[key])
       })
+      const info: any = {}
+      if (geometry.type === GeometryTypeEnum.POLYGON) {
+        info.key = '面积: '
+        info.value = `${area(layer.feature).toFixed(4)} m²`
+      }
+      if (geometry.type === GeometryTypeEnum.LINE_STRING) {
+        info.key = '长度: '
+        info.value = `${length(layer.feature, { units: 'kilometers' }).toFixed(4)} 公里`
+      }
+
+      const p = _legendRef.append('p').attr('class', 'ele')
+      p.append('span').text(info.key)
+      p.append('b').text(info.value)
     }
 
     const svg = ref<any | null>(null)

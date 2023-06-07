@@ -1,4 +1,5 @@
 import * as d3 from 'd3'
+import truncate from '@turf/truncate'
 
 export function svgPoints(content: any) {
   const { map } = content
@@ -75,6 +76,11 @@ export function svgPoints(content: any) {
           p.append('span').text(`${key}:`)
           p.append('b').text(target.properties[key])
         })
+
+        const p = _legendRef.append('p').attr('class', 'ele')
+        const newPoint = truncate(target, { precision: 6 })
+        p.append('span').text(`经度: ${newPoint.geometry.coordinates[0]}`)
+        p.append('span').text(`纬度: ${newPoint.geometry.coordinates[1]}`)
       })
       .call(markerPath, 'shadow')
 

@@ -21,14 +21,14 @@
     "leaflet": "^1.9.3",
     "leaflet-minimap": "^3.6.1",
     "lodash-es": "^4.17.21",
-    "pinia": "^2.0.35",
+    "pinia": "^2.0.65",
     "rbush": "^3.0.1",
     "vditor": "^3.9.3",
     "vue": "^3.2.47",
     "vue-router": "^4.1.6"
   },
   "devDependencies": {
-    "@antfu/eslint-config": "^0.39.4",
+    "@antfu/eslint-config": "^0.69.4",
     "@iconify/json": "^2.2.72",
     "@vitejs/plugin-vue": "^4.1.0",
     "@vitejs/plugin-vue-jsx": "^3.0.1",

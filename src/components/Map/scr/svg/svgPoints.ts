@@ -1,3 +1,5 @@
+import * as d3 from 'd3'
+
 export function svgPoints(content: any) {
   const { map } = content
 
@@ -10,12 +12,12 @@ export function svgPoints(content: any) {
       .attr('d', 'M 17,8 C 17,13 11,21 8.5,23.5 C 6,21 0,13 0,8 C 0,4 4,-0.5 8.5,-0.5 C 13,-0.5 17,4 17,8 z')
   }
 
-  // function eventTarget(d3_event: any): object | null {
-  //   const datum: object = d3_event.target && d3_event.target.__data__
-  //   if (typeof datum !== 'object')
-  //     return null
-  //   return datum
-  // }
+  function eventTarget(d3_event: any): any {
+    const datum: object = d3_event.target && d3_event.target.__data__
+    if (typeof datum !== 'object')
+      return null
+    return datum
+  }
 
   // function boundContains(map: any, coordinates: Array<number>): boolean {
   //   return map.getBounds()
@@ -64,7 +66,15 @@ export function svgPoints(content: any) {
       .on(`${_pointerPrefix}out.hover`, (d: any) => {
         d.target.classList.remove('hover')
       })
-      .on(`${_pointerPrefix}down.hover`, () => {
+      .on(`${_pointerPrefix}down.hover`, (d: any) => {
+        const target = eventTarget(d)
+        const _legendRef = d3.select('.legend')
+        _legendRef.selectAll('p').remove()
+        Object.keys(target.properties).forEach((key) => {
+          const p = _legendRef.append('p').attr('class', 'ele')
+          p.append('span').text(`${key}:`)
+          p.append('b').text(target.properties[key])
+        })
       })
       .call(markerPath, 'shadow')
 

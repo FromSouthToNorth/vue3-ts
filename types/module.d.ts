@@ -5,3 +5,4 @@ declare module L {
 }
 declare module 'd3'
 declare module 'rbush'
+declare module 'lodash-es/throttle'

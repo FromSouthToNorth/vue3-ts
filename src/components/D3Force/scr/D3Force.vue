@@ -78,7 +78,7 @@ export default defineComponent({
       function mousemoved(event) {
         const [x, y] = d3.pointer(event)
         mouse = { x, y }
-        simulation.alpha(0.3).restart()
+        simulation.alpha(0.6).restart()
       }
 
       function mouseleft() {
@@ -89,7 +89,7 @@ export default defineComponent({
       const drag = (simulation) => {
         function dragstarted(event, d) {
           if (!event.active)
-            simulation.alphaTarget(0.3).restart()
+            simulation.alphaTarget(0.6).restart()
           d.fx = d.x
           d.fy = d.y
         }
@@ -129,7 +129,7 @@ export default defineComponent({
 
       node.append('text')
         .attr('x', 8)
-        .attr('y', '0.31em')
+        .attr('y', '0.61em')
         .text(d => d.id)
         .clone(true).lower()
         .attr('fill', 'none')

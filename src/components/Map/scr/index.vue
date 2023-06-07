@@ -7,13 +7,13 @@ import RBush from 'rbush'
 import * as L from 'leaflet'
 import 'leaflet-minimap'
 import _throttle from 'lodash-es/throttle'
-import { miniTileLayer, tileLayers } from './tileLayers'
 import cd from '/@/data/cd.json'
 import { svgPoints } from '/@/components/Map/scr/svg/svgPoints'
 import { behaviorHash } from '/@/hooks/core/useHash'
 import { GeometryTypeEnum } from '/@/enums/geometryTypeEnum'
-import { svgTagClasses } from './tag/tag_classes'
 import login from '/@/assets/images/logo.png'
+import { svgTagClasses } from './tag/tag_classes'
+import { miniTileLayer, tileLayers } from './tileLayers'
 
 export default defineComponent({
   name: 'LeafletMap',
@@ -27,15 +27,11 @@ export default defineComponent({
     const points = ref<Array<any>>([])
     const legendRef = ref<any>(null)
 
+    const renderer = ref<any>(null)
+
     const svgPoint = ref<any>()
-    const areaJSON = L.geoJSON(null, { style: areaJSONStyle })
-      .on('click', (e: any) => {
-        layerInfo(e.layer)
-      })
-    const lineJSON = L.geoJSON(null, { style: lineJSONStyle })
-      .on('click', (e: any) => {
-        layerInfo(e.layer)
-      })
+    const areaJSON = ref<any>(null)
+    const lineJSON = ref<any>(null)
 
     function layerInfo(layer: any) {
       const { properties } = layer.feature
@@ -93,9 +89,6 @@ export default defineComponent({
 
       svgPoint.value = svgPoints({ map })
 
-      areaJSON.addTo(map)
-      lineJSON.addTo(map)
-
       tileLayers.forEach((layer) => {
         L.tileLayer(layer.url, layer.options)
           .addTo(map)
@@ -117,11 +110,25 @@ export default defineComponent({
       }
       legend.addTo(map)
 
-      L.svg({ }).addTo(map)
+      renderer.value = L.svg({ padding: 0 }).addTo(map)
       svg.value = d3.select(map.getPanes().overlayPane)
         .select('svg')
         .attr('pointer-events', 'auto')
 
+      // init lineLayer
+      lineJSON.value = L.geoJSON(null, {
+        renderer: unref(renderer),
+        style: lineJSONStyle,
+      }).on('click', (e: any) => {
+        layerInfo(e.layer)
+      }).addTo(map)
+      // init areaLayer
+      areaJSON.value = L.geoJSON(null, {
+        renderer: unref(renderer),
+        style: areaJSONStyle,
+      }).on('click', (e: any) => {
+        layerInfo(e.layer)
+      }).addTo(map)
       // init svg -> g.points...
       unref(svg)?.append('g')
         .attr('class', 'points')
@@ -170,10 +177,10 @@ export default defineComponent({
         ls = unref(lines).filter(filterLine)
       }
 
-      areaJSON.clearLayers()
-      lineJSON.clearLayers()
-      areaJSON.addData(as)
-      lineJSON.addData(ls)
+      unref(areaJSON).clearLayers()
+      unref(lineJSON).clearLayers()
+      unref(areaJSON).addData(as)
+      unref(lineJSON).addData(ls)
       const _svgPoint = unref(svgPoint)
       _svgPoint(unref(svg), pts)
     }
@@ -200,18 +207,28 @@ export default defineComponent({
       return false
     }
 
+    const zoomAreaField: any = {
+      16: {
+        field: 'building',
+      },
+    }
+
     function filterArea(geoJSON: any): boolean {
+      const _map = unref(map)
       const layer = L.GeoJSON.geometryToLayer(geoJSON)
       const latLng = layer.getLatLngs()
       const polygonPoints: Array<any> = []
       latLng.forEach((lls: any) => {
         lls.forEach((latlng: any) => {
-          const point = map.value.latLngToLayerPoint(latlng)
+          const point = _map.latLngToLayerPoint(latlng)
           polygonPoints.push(point)
         })
       })
       const clipPolygon = L.PolyUtil.clipPolygon(polygonPoints, getBounds())
-      return clipPolygon.length
+      const _zoomAreaField = zoomAreaField[_map.getZoom()]
+      const field = _zoomAreaField ? geoJSON.properties[_zoomAreaField.field] : undefined
+
+      return clipPolygon.length > 0 && (!_zoomAreaField || !field)
     }
 
     function switchLayer() {
@@ -273,7 +290,7 @@ export default defineComponent({
   }
 
   & img {
-    width: 120px;
+    width: 56px;
     display: block;
     margin: 4px;
   }

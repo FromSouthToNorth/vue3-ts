@@ -2,7 +2,7 @@
 @import "./line.less";
 @import "./area.less";
 
-.leaflet-overlay-path path {
+.leaflet-overlay-pane path {
   fill: none;
 }
 
@@ -10,3 +10,11 @@ path.shadow.hover:not(.selected) {
   stroke-opacity: 0.4;
 }
 
+path.area.hover, 
+path.line.hover {
+  stroke: #f6634f;
+  stroke-width: 16;
+  stroke-opacity: 0.4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}

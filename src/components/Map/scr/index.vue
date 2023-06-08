@@ -3,6 +3,10 @@ import { defineComponent, onMounted, ref, unref } from 'vue'
 import { props } from './props'
 
 import * as d3 from 'd3'
+import {
+  geoPath as d3_geoPath,
+  geoTransform as d3_geoTransform,
+} from 'd3-geo'
 import RBush from 'rbush'
 import * as L from 'leaflet'
 import 'leaflet-minimap'
@@ -15,8 +19,8 @@ import login from '/@/assets/images/logo.png'
 
 import area from '@turf/area'
 import length from '@turf/length'
-import { svgTagClasses } from './tag/tag_classes'
 import { miniTileLayer, tileLayers } from './tileLayers'
+import { svgTagClasses } from './tag/tag_classes'
 
 export default defineComponent({
   name: 'LeafletMap',
@@ -94,7 +98,7 @@ export default defineComponent({
 
       redraw()
       const scheduleRedraw = _throttle(redraw, 750)
-      _map.on('move', () => {
+      _map.on('moveend', () => {
         scheduleRedraw()
       })
     })
@@ -126,7 +130,7 @@ export default defineComponent({
       }
       legend.addTo(map)
 
-      renderer.value = L.svg({ padding: 0 }).addTo(map)
+      renderer.value = L.svg().addTo(map)
       svg.value = d3.select(map.getPanes().overlayPane)
         .select('svg')
         .attr('pointer-events', 'auto')
@@ -146,15 +150,31 @@ export default defineComponent({
         layerInfo(e.layer)
       }).addTo(map)
       // init svg -> g.points...
-      unref(svg)?.append('g')
+      unref(svg).append('g')
         .attr('class', 'points')
+
+      unref(svg).append('defs').attr('class', 'surface-defs')
     }
+
+    function projectPoint(x: any, y: any) {
+      const point = unref(map).latLngToLayerPoint(new L.LatLng(y, x))
+      this.stream.point(point.x, point.y)
+    }
+
+    const projection = d3_geoTransform({
+      point: projectPoint,
+    })
 
     function redraw() {
       const _map = unref(map)
+      const areaJson = unref(areaJSON)
+      const lineJson = unref(lineJSON)
+      areaJson.clearLayers()
+      lineJson.clearLayers()
       let as = []
       let ls = []
       let pts = []
+
       if (_map.getZoom() >= 17) {
         const tree = new RBush()
         const rb: Array<any>
@@ -188,15 +208,44 @@ export default defineComponent({
           return unref(d.point)
         })
       }
+
       if (_map.getZoom() >= 16) {
         as = unref(areas).filter(filterArea)
         ls = unref(lines).filter(filterLine)
       }
+      unref(svg)
+        .selectAll('defs')
+        .selectAll('.clipPath-osm').remove()
+      const path = d3_geoPath()
+        .projection(projection)
+      let clipPaths = unref(svg)
+        .selectAll('defs')
+        .selectAll('.clipPath-osm')
+        .data(as)
+      clipPaths.exit()
+        .remove()
+      const clipPathsEnter = clipPaths.enter()
+        .append('clipPath')
+        .attr('class', 'clipPath-osm')
+        .attr('id', (entity: any) => {
+          return `hy-${entity.wid}-clippath`
+        })
 
-      unref(areaJSON).clearLayers()
-      unref(lineJSON).clearLayers()
-      unref(areaJSON).addData(as)
-      unref(lineJSON).addData(ls)
+      clipPathsEnter
+        .append('path')
+
+      clipPaths = clipPaths.merge(clipPathsEnter)
+        .selectAll('path')
+        .attr('d', path)
+
+      areaJson.addData(as)
+      lineJson.addData(ls)
+
+      areaJson.eachLayer((layer: any) => {
+        // console.log(layer.feature.wid)
+        d3.select(layer._path)
+          .attr('clip-path', `url(#hy-${layer.feature.wid}-clippath)`)
+      })
       const _svgPoint = unref(svgPoint)
       _svgPoint(unref(svg), pts)
     }
@@ -249,6 +298,10 @@ export default defineComponent({
 
     function switchLayer() {
       cd.features.forEach((feature) => {
+        const index = feature.id.indexOf('/')
+        if (index !== -1)
+          feature.wid = `w${feature.id.substring(index + 1, feature.id.length)}`
+
         switch (feature.geometry.type) {
           case GeometryTypeEnum.POINT:
             unref(points).push(feature)
@@ -295,7 +348,8 @@ export default defineComponent({
   background-color: rgba(255,255,255,0.8);
   box-shadow: 0 0 15px rgba(0,0,0,0.2);
   border-radius: 4px;
-
+  max-height: 400px;
+  overflow-y: auto;
   & p {
     margin: 0;
     padding: 2px 6px;

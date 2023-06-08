@@ -1,6 +1,5 @@
 <script lang="tsx">
 import { defineComponent, onMounted, ref, unref } from 'vue'
-import { props } from './props'
 
 import * as d3 from 'd3'
 import {
@@ -10,7 +9,6 @@ import {
 import RBush from 'rbush'
 import * as L from 'leaflet'
 import 'leaflet-minimap'
-import _throttle from 'lodash-es/throttle'
 import cd from '/@/data/cd.json'
 import { svgPoints } from '/@/components/Map/scr/svg/svgPoints'
 import { behaviorHash } from '/@/hooks/core/useHash'
@@ -21,10 +19,10 @@ import area from '@turf/area'
 import length from '@turf/length'
 import { miniTileLayer, tileLayers } from './tileLayers'
 import { svgTagClasses } from './tag/tag_classes'
+import { svgMarkerSegments } from './helpers'
 
 export default defineComponent({
   name: 'LeafletMap',
-  props,
   setup() {
     const map = ref<any>(null)
     const mapContainer = ref(null)
@@ -71,18 +69,20 @@ export default defineComponent({
 
     function areaJSONStyle(feature: any): any {
       return {
-        className: `area stroke ${tagClasses(feature)}`,
+        className: `area ${tagClasses(feature)}`,
       }
     }
 
     function lineJSONStyle(feature: any): any {
       return {
-        className: `line stroke ${tagClasses(feature)}`,
+        className: `line ${tagClasses(feature)}`,
       }
     }
 
     onMounted(() => {
-      rect.value = d3.select(mapContainer.value).node().getBoundingClientRect()
+      rect.value = d3.select(mapContainer.value)
+        .node()
+        .getBoundingClientRect()
       map.value = L.map(mapContainer.value, {
         zoom: 5,
         minZoom: 2,
@@ -97,13 +97,30 @@ export default defineComponent({
       init(_map)
 
       redraw()
-      const scheduleRedraw = _throttle(redraw, 750)
       _map.on('moveend', () => {
-        scheduleRedraw()
+        redraw()
       })
     })
 
     function init(map: any) {
+      const defsSvg = d3.select('#app').append('svg')
+      const defs = defsSvg.append('defs')
+      const marker = defs.append('marker')
+        .attr('id', 'oneway-marker')
+        .attr('viewBox', '0 0 10 5')
+        .attr('refX', 2.5)
+        .attr('refY', 2.5)
+        .attr('markerWidth', 2)
+        .attr('markerHeight', 2)
+        .attr('markerUnits', 'strokeWidth')
+        .attr('orient', 'auto')
+      marker.append('path')
+        .attr('class', 'oneway-marker-path')
+        .attr('d', 'M 5,3 L 0,3 L 0,2 L 5,2 L 5,0 L 10,2.5 L 5,5 z')
+        .attr('stroke', 'none')
+        .attr('fill', '#000')
+        .attr('opacity', '0.75')
+
       // init dataSource
       switchLayer()
 
@@ -149,11 +166,14 @@ export default defineComponent({
       }).on('click', (e: any) => {
         layerInfo(e.layer)
       }).addTo(map)
+      const _svg = unref(svg)
       // init svg -> g.points...
-      unref(svg).append('g')
+      _svg.append('g')
         .attr('class', 'points')
 
-      unref(svg).append('defs').attr('class', 'surface-defs')
+      _svg.append('g').attr('class', 'onewaygroup')
+
+      _svg.append('defs').attr('class', 'surface-defs')
     }
 
     function projectPoint(x: any, y: any) {
@@ -167,6 +187,7 @@ export default defineComponent({
 
     function redraw() {
       const _map = unref(map)
+      const _svg = unref(svg)
       const areaJson = unref(areaJSON)
       const lineJson = unref(lineJSON)
       areaJson.clearLayers()
@@ -174,7 +195,15 @@ export default defineComponent({
       let as = []
       let ls = []
       let pts = []
-
+      const { _northEast, _southWest } = _map.getBounds()
+      const _southWestXY = _map.latLngToLayerPoint(_southWest)
+      const _northEastXY = _map.latLngToLayerPoint(_northEast)
+      const bbox = {
+        minX: _southWestXY.x,
+        minY: _northEastXY.y,
+        maxX: _northEastXY.x,
+        maxY: _southWestXY.y,
+      }
       if (_map.getZoom() >= 17) {
         const tree = new RBush()
         const rb: Array<any>
@@ -195,15 +224,6 @@ export default defineComponent({
              }
            })
         tree.load(rb)
-        const { _northEast, _southWest } = _map.getBounds()
-        const _southWestXY = _map.latLngToLayerPoint(_southWest)
-        const _northEastXY = _map.latLngToLayerPoint(_northEast)
-        const bbox = {
-          minX: _southWestXY.x,
-          minY: _northEastXY.y,
-          maxX: _northEastXY.x,
-          maxY: _southWestXY.y,
-        }
         pts = tree.search(bbox).map((d: any) => {
           return unref(d.point)
         })
@@ -213,41 +233,75 @@ export default defineComponent({
         as = unref(areas).filter(filterArea)
         ls = unref(lines).filter(filterLine)
       }
-      unref(svg)
+
+      // area clipPath
+      _svg
         .selectAll('defs')
-        .selectAll('.clipPath-osm').remove()
+        .selectAll('.clipPath-osm')
+        .remove()
       const path = d3_geoPath()
         .projection(projection)
-      let clipPaths = unref(svg)
+      let clipPaths = _svg
         .selectAll('defs')
         .selectAll('.clipPath-osm')
         .data(as)
-      clipPaths.exit()
-        .remove()
       const clipPathsEnter = clipPaths.enter()
         .append('clipPath')
         .attr('class', 'clipPath-osm')
         .attr('id', (entity: any) => {
           return `hy-${entity.wid}-clippath`
         })
-
       clipPathsEnter
         .append('path')
-
       clipPaths = clipPaths.merge(clipPathsEnter)
         .selectAll('path')
         .attr('d', path)
 
       areaJson.addData(as)
       lineJson.addData(ls)
+      let segments: Array<any> = []
+      // line oneway
+      lineJson.eachLayer((layer: any) => {
+        const { feature } = layer
+        if (feature.properties.oneway) {
+          const clipExtent = [[bbox.minX, bbox.minY], [bbox.maxX, bbox.maxY]]
+          const onewaySegments = svgMarkerSegments(
+            projection,
+            clipExtent,
+            35,
+            () => { return feature.properties.oneway === '-1' },
+            () => { return feature.oneway === 'reversible' || feature.oneway === 'alternating' })
+          if (onewaySegments(feature).length)
+            segments = [...segments, ...onewaySegments(feature)]
+        }
+      })
+
+      const onewaygroup = _svg.select('g.onewaygroup')
+      let markers = onewaygroup.selectAll('path')
+        .data(
+          () => { return segments },
+          (d: any) => { return [d.wid, d.index] },
+        )
+
+      markers.exit()
+        .remove()
+
+      markers = markers.enter()
+        .append('path')
+        .attr('class', 'oneway')
+        .merge(markers)
+        .attr('marker-mid', 'url(#oneway-marker)')
+        .attr('d', (d: any) => {
+          return d.d
+        })
 
       areaJson.eachLayer((layer: any) => {
-        // console.log(layer.feature.wid)
         d3.select(layer._path)
           .attr('clip-path', `url(#hy-${layer.feature.wid}-clippath)`)
       })
+
       const _svgPoint = unref(svgPoint)
-      _svgPoint(unref(svg), pts)
+      _svgPoint(_svg, pts)
     }
 
     function getBounds() {
@@ -344,12 +398,12 @@ export default defineComponent({
 .legend {
   font-size: 13px;
   color: #333333;
-  font-family: "Open Sans", Helvetica, sans-serif;
   background-color: rgba(255,255,255,0.8);
   box-shadow: 0 0 15px rgba(0,0,0,0.2);
   border-radius: 4px;
   max-height: 400px;
-  overflow-y: auto;
+  overflow-x: scroll;
+  display: block;
   & p {
     margin: 0;
     padding: 2px 6px;

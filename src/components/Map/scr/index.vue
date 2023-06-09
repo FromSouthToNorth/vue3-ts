@@ -9,19 +9,20 @@ import {
 import RBush from 'rbush'
 import * as L from 'leaflet'
 import 'leaflet-minimap'
-import cd from '/@/data/cd.json'
 import area from '@turf/area'
 import length from '@turf/length'
-import { svgPoints } from './svg/svgPoints'
+
 import { svgDefs } from './svg/defs'
+import { svgPoints } from './svg/svgPoints'
+import { svgMarkerSegments } from './helpers'
+import { svgTagClasses } from './tag/tag_classes'
+import { miniTileLayer, tileLayers } from './tileLayers'
+
+import cd from '/@/data/cd.json'
+import { utilArrayFlatten } from '/@/util'
+import login from '/@/assets/images/logo.png'
 import { behaviorHash } from '/@/hooks/core/useHash'
 import { GeometryTypeEnum } from '/@/enums/geometryTypeEnum'
-import login from '/@/assets/images/logo.png'
-
-import { miniTileLayer, tileLayers } from './tileLayers'
-import { svgTagClasses } from './tag/tag_classes'
-import { svgMarkerSegments } from './helpers'
-import { utilArrayFlatten } from '/@/util'
 
 export default defineComponent({
   name: 'LeafletMap',

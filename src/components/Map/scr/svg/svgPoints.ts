@@ -58,7 +58,7 @@ export function svgPoints(content: any) {
 
     const enter = groups.enter()
       .append('g')
-      .attr('class', (d) => {
+      .attr('class', (d: any) => {
         return `node point ${d.wid}`
       })
 

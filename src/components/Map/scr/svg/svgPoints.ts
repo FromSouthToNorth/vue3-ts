@@ -58,7 +58,9 @@ export function svgPoints(content: any) {
 
     const enter = groups.enter()
       .append('g')
-      .attr('class', 'node point')
+      .attr('class', (d) => {
+        return `node point ${d.wid}`
+      })
 
     enter.append('path')
       .on(`${_pointerPrefix}over.hover`, (d: any) => {

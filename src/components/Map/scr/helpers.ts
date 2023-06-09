@@ -15,7 +15,7 @@ export function svgMarkerSegments(
     let offset = dt
     const segments: { id: any; index: number; d: string }[] = []
     const clip = d3_geoIdentity().clipExtent(clipExtent).stream
-    const coordinates = entity.geometry.coordinates
+    const coordinates = [...entity.geometry.coordinates]
     let a: any, b: any
     if (shouldReverse(entity))
       coordinates.reverse()

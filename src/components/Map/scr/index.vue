@@ -10,14 +10,14 @@ import RBush from 'rbush'
 import * as L from 'leaflet'
 import 'leaflet-minimap'
 import cd from '/@/data/cd.json'
+import area from '@turf/area'
+import length from '@turf/length'
 import { svgPoints } from './svg/svgPoints'
 import { svgDefs } from './svg/defs'
 import { behaviorHash } from '/@/hooks/core/useHash'
 import { GeometryTypeEnum } from '/@/enums/geometryTypeEnum'
 import login from '/@/assets/images/logo.png'
 
-import area from '@turf/area'
-import length from '@turf/length'
 import { miniTileLayer, tileLayers } from './tileLayers'
 import { svgTagClasses } from './tag/tag_classes'
 import { svgMarkerSegments } from './helpers'
@@ -71,13 +71,13 @@ export default defineComponent({
 
     function areaJSONStyle(feature: any): any {
       return {
-        className: `area ${tagClasses(feature)}`,
+        className: `area ${feature.wid} ${tagClasses(feature)}`,
       }
     }
 
     function lineJSONStyle(feature: any): any {
       return {
-        className: `line ${tagClasses(feature)}`,
+        className: `line  ${feature.wid} ${tagClasses(feature)}`,
       }
     }
 
@@ -223,6 +223,30 @@ export default defineComponent({
       if (_map.getZoom() >= 16) {
         as = unref(areas).filter(filterArea)
         ls = unref(lines).filter(filterLine)
+          .sort(waystack)
+        function waystack(a: any, b: any) {
+          let scoreA = 0
+          let scoreB = 0
+          const highway_stack: any = {
+            motorway: 0,
+            motorway_link: 1,
+            trunk: 2,
+            trunk_link: 3,
+            primary: 4,
+            primary_link: 5,
+            secondary: 6,
+            tertiary: 7,
+            unclassified: 8,
+            residential: 9,
+            service: 10,
+            footway: 11,
+          }
+          if (a.properties.highway)
+            scoreA -= highway_stack[a.properties.highway]
+          if (b.properties.highway)
+            scoreB -= highway_stack[b.properties.highway]
+          return scoreA - scoreB
+        }
       }
 
       // area clipPath
@@ -236,32 +260,41 @@ export default defineComponent({
         .selectAll('defs')
         .selectAll('.clipPath-osm')
         .data(as)
+
       const clipPathsEnter = clipPaths.enter()
         .append('clipPath')
         .attr('class', 'clipPath-osm')
         .attr('id', (entity: any) => {
           return `hy-${entity.wid}-clippath`
         })
+
       clipPathsEnter
         .append('path')
+
       clipPaths = clipPaths.merge(clipPathsEnter)
         .selectAll('path')
         .attr('d', path)
 
       areaJson.addData(as)
       lineJson.addData(ls)
-      const segments: Array<any> = []
+
       // line oneway
+      const segments: Array<any> = []
       lineJson.eachLayer((layer: any) => {
         const { feature } = layer
-        if (feature.properties.oneway) {
+        if (feature.properties.oneway || feature.properties.waterway) {
           const clipExtent = [[bbox.minX, bbox.minY], [bbox.maxX, bbox.maxY]]
           const onewaySegments = svgMarkerSegments(
             projection,
             clipExtent,
             35,
-            () => { return feature.properties.oneway === '-1' },
-            () => { return feature.oneway === 'reversible' || feature.oneway === 'alternating' })
+            () => {
+              return feature.properties.oneway === '-1'
+            },
+            () => {
+              return feature.properties.oneway === 'reversible'
+              || feature.properties.oneway === 'alternating'
+            })
           const onewaydata = onewaySegments(feature)
           if (onewaydata.length)
             segments.push(onewaydata)

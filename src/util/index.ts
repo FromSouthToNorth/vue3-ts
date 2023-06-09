@@ -52,3 +52,21 @@ export function utilQsString(obj: any, noencode: boolean): string {
           noencode ? softEncode(obj[key]) : encodeURIComponent(obj[key])}`
   }).join('&')
 }
+
+// Flattens two level array into a single level
+// var a = [[1,2,3],[4,5,6],[7]];
+// utilArrayFlatten(a);
+//   [1,2,3,4,5,6,7];
+export function utilArrayFlatten(a: Array<any>) {
+  return a.reduce((acc, val) => {
+    return acc.concat(val)
+  }, [])
+}
+
+// Returns an Array with all the duplicates removed
+// var a = [1,1,2,3,3];
+// utilArrayUniq(a)
+//   [1,2,3]
+export function utilArrayUniq(a: Array<any>) {
+  return Array.from(new Set(a))
+}

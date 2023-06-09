@@ -10,7 +10,8 @@ import RBush from 'rbush'
 import * as L from 'leaflet'
 import 'leaflet-minimap'
 import cd from '/@/data/cd.json'
-import { svgPoints } from '/@/components/Map/scr/svg/svgPoints'
+import { svgPoints } from './svg/svgPoints'
+import { svgDefs } from './svg/defs'
 import { behaviorHash } from '/@/hooks/core/useHash'
 import { GeometryTypeEnum } from '/@/enums/geometryTypeEnum'
 import login from '/@/assets/images/logo.png'
@@ -20,6 +21,7 @@ import length from '@turf/length'
 import { miniTileLayer, tileLayers } from './tileLayers'
 import { svgTagClasses } from './tag/tag_classes'
 import { svgMarkerSegments } from './helpers'
+import { utilArrayFlatten } from '/@/util'
 
 export default defineComponent({
   name: 'LeafletMap',
@@ -80,6 +82,13 @@ export default defineComponent({
     }
 
     onMounted(() => {
+      if (d3.select('svg.svg-defs')
+        .selectAll('marker')
+        .empty()) {
+        const defs = svgDefs()
+        defs(d3.select('#app').append('svg').attr('class', 'svg-defs'))
+      }
+
       rect.value = d3.select(mapContainer.value)
         .node()
         .getBoundingClientRect()
@@ -103,24 +112,6 @@ export default defineComponent({
     })
 
     function init(map: any) {
-      const defsSvg = d3.select('#app').append('svg')
-      const defs = defsSvg.append('defs')
-      const marker = defs.append('marker')
-        .attr('id', 'oneway-marker')
-        .attr('viewBox', '0 0 10 5')
-        .attr('refX', 2.5)
-        .attr('refY', 2.5)
-        .attr('markerWidth', 2)
-        .attr('markerHeight', 2)
-        .attr('markerUnits', 'strokeWidth')
-        .attr('orient', 'auto')
-      marker.append('path')
-        .attr('class', 'oneway-marker-path')
-        .attr('d', 'M 5,3 L 0,3 L 0,2 L 5,2 L 5,0 L 10,2.5 L 5,5 z')
-        .attr('stroke', 'none')
-        .attr('fill', '#000')
-        .attr('opacity', '0.75')
-
       // init dataSource
       switchLayer()
 
@@ -259,7 +250,7 @@ export default defineComponent({
 
       areaJson.addData(as)
       lineJson.addData(ls)
-      let segments: Array<any> = []
+      const segments: Array<any> = []
       // line oneway
       lineJson.eachLayer((layer: any) => {
         const { feature } = layer
@@ -271,15 +262,16 @@ export default defineComponent({
             35,
             () => { return feature.properties.oneway === '-1' },
             () => { return feature.oneway === 'reversible' || feature.oneway === 'alternating' })
-          if (onewaySegments(feature).length)
-            segments = [...segments, ...onewaySegments(feature)]
+          const onewaydata = onewaySegments(feature)
+          if (onewaydata.length)
+            segments.push(onewaydata)
         }
       })
-
+      const onewaydata = utilArrayFlatten(segments)
       const onewaygroup = _svg.select('g.onewaygroup')
       let markers = onewaygroup.selectAll('path')
         .data(
-          () => { return segments },
+          () => { return onewaydata },
           (d: any) => { return [d.wid, d.index] },
         )
 

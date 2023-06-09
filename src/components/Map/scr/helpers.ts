@@ -24,7 +24,7 @@ export function svgMarkerSegments(
       type: 'LineString',
       coordinates,
     }, projection.stream(clip({
-      lineStart() { },
+      lineStart() {},
       lineEnd() { a = null },
       point(x: number, y: number) {
         b = [x, y]
@@ -39,11 +39,16 @@ export function svgMarkerSegments(
               a[0] + offset * Math.cos(heading),
               a[1] + offset * Math.sin(heading),
             ]
-            const coord = [a, p]
+
+            // gather coordinates
+            const coord: Array<Array<number>> = [a, p]
             for (span -= dt; span >= 0; span -= dt) {
               p = geoVecAdd(p, [dx, dy])
               coord.push(p)
             }
+            coord.push(b)
+
+            // generate svg paths
             let segment = ''
             let j
             for (j = 0; j < coord.length; j++)

@@ -2,6 +2,9 @@ import 'uno.css'
 import './design/index.less'
 import 'ant-design-vue/dist/antd.less'
 
+// Register icon sprite
+import 'virtual:svg-icons-register'
+
 import { createApp } from 'vue'
 import App from './App.vue'
 

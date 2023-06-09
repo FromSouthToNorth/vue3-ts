@@ -5,6 +5,7 @@ import vueJsx from '@vitejs/plugin-vue-jsx'
 import UnoCSS from 'unocss/vite'
 import { presetAttributify, presetIcons, presetUno } from 'unocss'
 import { generateModifyVars } from './src/config/modifyVars'
+import { configSvgIconsPlugin } from './vite/svgSprite'
 
 const root = process.cwd()
 const pathResolve = (pathname: string) => resolve(root, '.', pathname)
@@ -30,6 +31,7 @@ export default defineConfig({
         }),
       ],
     }),
+    configSvgIconsPlugin({ isBuild: false }),
   ],
 
   resolve: {

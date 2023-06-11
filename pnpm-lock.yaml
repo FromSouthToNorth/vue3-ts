@@ -23,6 +23,9 @@ dependencies:
   '@vueuse/core':
     specifier: ^10.1.2
     version: 10.1.2(vue@3.3.4)
+  alif-toolkit:
+    specifier: ^1.2.9
+    version: 1.2.9
   ant-design-vue:
     specifier: ^3.2.20
     version: registry.npmmirror.com/ant-design-vue@3.2.20(vue@3.3.4)
@@ -50,6 +53,9 @@ dependencies:
   rbush:
     specifier: ^3.0.1
     version: 3.0.1
+  uuid:
+    specifier: ^9.0.0
+    version: 9.0.0
   vditor:
     specifier: ^3.9.3
     version: registry.npmmirror.com/vditor@3.9.3
@@ -1495,6 +1501,10 @@ packages:
       json-schema-traverse: 0.4.1
       uri-js: 4.4.1
     dev: true
+
+  /alif-toolkit@1.2.9:
+    resolution: {integrity: sha512-j++XV1TyQP1n5i7ir1FgBcIBCkWhbu3xX8p2ttQV78iRscEwbSjbipRAU413pG2Ip+dy3ehy/+5ZFDGeOvrYPQ==}
+    dev: false
 
   /ansi-regex@2.1.1:
     resolution: {integrity: sha512-TIGnTpdo+E3+pCyAluZvtED5p5wCqLdezCyhPZzKPcxvFplEt4i+W7OONCKgeZFT3+y5NZZfOOS/Bdcanm1MYA==}
@@ -4910,6 +4920,11 @@ packages:
   /util-deprecate@1.0.2:
     resolution: {integrity: sha512-EPD5q1uXyFxJpCrLnCc1nHnq3gOa6DZBocAIiI2TaSCA7VCJ1UJDMagCzIkXNsUYfD1daK//LTEQ8xiIbrHtcw==}
     dev: true
+
+  /uuid@9.0.0:
+    resolution: {integrity: sha512-MXcSTerfPa4uqyzStbRoTgt5XIe3x5+42+q1sDuy3R5MDk66URdLMOZe5aPX/SQd+kuYAh0FdP/pO28IkQyTeg==}
+    hasBin: true
+    dev: false
 
   /validate-npm-package-license@3.0.4:
     resolution: {integrity: sha512-DpKm2Ui/xN7/HQKCtpZxoRWBhZ9Z0kqtygG8XCgNQ8ZlDnxuQmWhj566j8fN4Cu3/JmbhsDo7fcAJq4s9h27Ew==}

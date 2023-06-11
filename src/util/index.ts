@@ -1,4 +1,6 @@
 import type { App, Component } from 'vue'
+import { utilDetect } from './detect'
+import { fixRTLTextForSvg, rtlRegex } from './svgPathsRtlFIx'
 
 // https://github.com/vant-ui/vant/issues/8302
 interface EventShim {
@@ -69,4 +71,20 @@ export function utilArrayFlatten(a: Array<any>) {
 //   [1,2,3]
 export function utilArrayUniq(a: Array<any>) {
   return Array.from(new Set(a))
+}
+
+export function utilDisplayName(entity: any): string {
+  const nameKey = 'name:en'
+  const name = entity[nameKey] || entity.name || ''
+  return name
+}
+
+export function utilDisplayNameForPath(entity: any): string {
+  let name = utilDisplayName(entity)
+  const isFirefox = utilDetect().browser.toLowerCase().includes('firefox')
+  const isNewChromium = Number(utilDetect().version.split('.')[0]) >= 96.0
+  if (isFirefox && !isNewChromium && name && rtlRegex.test(name))
+    name = fixRTLTextForSvg(name)
+
+  return name
 }

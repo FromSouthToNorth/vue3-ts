@@ -12,17 +12,19 @@ import 'leaflet-minimap'
 import area from '@turf/area'
 import length from '@turf/length'
 
+import { v4 as uuidv4 } from 'uuid'
 import { svgDefs } from './svg/defs'
 import { svgPoints } from './svg/svgPoints'
 import { svgMarkerSegments } from './helpers'
 import { svgTagClasses } from './tag/tag_classes'
 import { miniTileLayer, tileLayers } from './tileLayers'
 
-import cd from '/@/data/cd.json'
+import cd from '/@/data/file.json'
 import { utilArrayFlatten } from '/@/util'
 import login from '/@/assets/images/logo.png'
 import { behaviorHash } from '/@/hooks/core/useHash'
 import { GeometryTypeEnum } from '/@/enums/geometryTypeEnum'
+import { svgLabels } from './svg/labels'
 
 export default defineComponent({
   name: 'LeafletMap',
@@ -38,6 +40,7 @@ export default defineComponent({
     const renderer = ref<any>(null)
 
     const svgPoint = ref<any>()
+    const svgLabel = ref<any>()
     const areaJSON = ref<any>(null)
     const lineJSON = ref<any>(null)
 
@@ -112,10 +115,20 @@ export default defineComponent({
       })
     })
 
+    function projectPoint(x: any, y: any) {
+      const point = unref(map).latLngToLayerPoint(new L.LatLng(y, x))
+      this.stream.point(point.x, point.y)
+    }
+
+    const projection = d3_geoTransform({
+      point: projectPoint,
+    })
+
     function init(map: any) {
       // init dataSource
       switchLayer()
 
+      svgLabel.value = svgLabels(projection, { map })
       svgPoint.value = svgPoints({ map })
 
       tileLayers.forEach((layer) => {
@@ -164,18 +177,9 @@ export default defineComponent({
         .attr('class', 'points')
 
       _svg.append('g').attr('class', 'onewaygroup')
-
+      _svg.append('g').attr('class', 'labels')
       _svg.append('defs').attr('class', 'surface-defs')
     }
-
-    function projectPoint(x: any, y: any) {
-      const point = unref(map).latLngToLayerPoint(new L.LatLng(y, x))
-      this.stream.point(point.x, point.y)
-    }
-
-    const projection = d3_geoTransform({
-      point: projectPoint,
-    })
 
     function redraw() {
       const _map = unref(map)
@@ -196,6 +200,7 @@ export default defineComponent({
         maxX: _northEastXY.x,
         maxY: _southWestXY.y,
       }
+      const clipExtent = [[bbox.minX, bbox.minY], [bbox.maxX, bbox.maxY]]
       if (_map.getZoom() >= 17) {
         const tree = new RBush()
         const rb: Array<any>
@@ -284,7 +289,6 @@ export default defineComponent({
       lineJson.eachLayer((layer: any) => {
         const { feature } = layer
         if (feature.properties.oneway || feature.properties.waterway) {
-          const clipExtent = [[bbox.minX, bbox.minY], [bbox.maxX, bbox.maxY]]
           const onewaySegments = svgMarkerSegments(
             projection,
             clipExtent,
@@ -325,6 +329,9 @@ export default defineComponent({
         d3.select(layer._path)
           .attr('clip-path', `url(#hy-${layer.feature.wid}-clippath)`)
       })
+
+      const _svgLabel = unref(svgLabel)
+      _svgLabel(_svg, [...ls, ...as, ...pts], unref(rect), clipExtent)
 
       const _svgPoint = unref(svgPoint)
       _svgPoint(_svg, pts)
@@ -376,11 +383,14 @@ export default defineComponent({
       return clipPolygon.length > 0 && (!_zoomAreaField || !field)
     }
 
+    const jsonData = [...cd.features]
     function switchLayer() {
-      cd.features.forEach((feature) => {
-        const index = feature.id.indexOf('/')
-        if (index !== -1)
+      jsonData.forEach((feature) => {
+        const index = feature.id ? feature.id.indexOf('/') : ''
+        if (feature.id && index !== -1)
           feature.wid = `w${feature.id.substring(index + 1, feature.id.length)}`
+        else
+          feature.wid = `w${uuidv4()}`
 
         switch (feature.geometry.type) {
           case GeometryTypeEnum.POINT:

@@ -3,6 +3,12 @@ import {
   geoStream as d3_geoStream,
 } from 'd3-geo'
 
+import {
+  geoVecAdd,
+  geoVecAngle,
+  geoVecLength,
+} from '/@/geo/vector'
+
 export function svgMarkerSegments(
   projection: any,
   clipExtent: Array<Array<number>>,
@@ -70,26 +76,4 @@ export function svgMarkerSegments(
 
     return segments
   }
-}
-
-export function geoVecLength(a: Array<number>, b: Array<number>): number {
-  return Math.sqrt(geoVecLengthSquare(a, b))
-}
-
-export function geoVecLengthSquare(a: Array<number>, b: Array<number>): number {
-  b = b || [0, 0]
-  const x = a[0] - b[0]
-  const y = a[1] - b[1]
-  return (x * x) + (y * y)
-}
-
-// Return the counterclockwise angle in the range (-pi, pi)
-// between the positive X axis and the line intersecting a and b.
-export function geoVecAngle(a: Array<number>, b: Array<number>): number {
-  return Math.atan2(b[1] - a[1], b[0] - a[0])
-}
-
-// vector addition
-export function geoVecAdd(a: Array<number>, b: Array<number>): Array<number> {
-  return [a[0] + b[0], a[1] + b[1]]
 }

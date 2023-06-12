@@ -183,9 +183,9 @@ export function svgLabels(projection: any, context: any) {
         continue
 
       for (k = 0; k < labelStack.length; k++) {
-        const matchGeom = labelStack[k][0]
         const matchKey = labelStack[k][1]
         const matchVal = labelStack[k][2]
+        const matchGeom = labelStack[k][0]
         const hasVal = entity.properties[matchKey]
 
         if (geometry === matchGeom && hasVal && (matchVal === '*' || matchVal === hasVal)) {

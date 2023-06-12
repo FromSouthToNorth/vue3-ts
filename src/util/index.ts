@@ -74,9 +74,8 @@ export function utilArrayUniq(a: Array<any>) {
 }
 
 export function utilDisplayName(entity: any): string {
-  const nameKey = 'name:en'
-  const name = entity[nameKey] || entity.name || ''
-  return name
+  const nameKey = 'name:zh'
+  return entity[nameKey] || entity.name || ''
 }
 
 export function utilDisplayNameForPath(entity: any): string {

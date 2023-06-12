@@ -8,7 +8,7 @@ export function geoPathLength(path: Array<any>): number {
   return length
 }
 
-export function geoPolygonIntersectsPolygon(outer: Array<any>, inner: Array<any>, checkSegments: boolean): boolean {
+export function geoPolygonIntersectsPolygon(outer: Array<Array<any>>, inner: Array<any>, checkSegments: boolean): boolean {
   function testPoints(outer: Array<any>, inner: Array<any>) {
     return inner.some((point) => {
       return geoPointInPolygon(point, outer)

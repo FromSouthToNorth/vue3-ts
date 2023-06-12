@@ -5,6 +5,11 @@
   stroke-miterlimit: 1;
 }
 
+text.arealabel-halo,
+text.linelabel-halo,
+text.pointlabel-halo,
+text.arealabel,
+text.linelabel,
 text.pointlabel {
   dominant-baseline: middle;
   text-anchor: middle;
@@ -16,8 +21,8 @@ text.pointlabel {
   transition: opacity 100ms linear;
 }
 
-
-.ideditor .linelabel-halo .textpath, .ideditor .linelabel .textpath {
+.linelabel-halo .textpath,
+.linelabel .textpath {
   baseline-shift: -33%;
   dominant-baseline: auto;
 }

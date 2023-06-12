@@ -152,7 +152,7 @@ export default defineComponent({
       }
       legend.addTo(map)
 
-      renderer.value = L.svg().addTo(map)
+      renderer.value = L.svg({ padding: 0.1 }).addTo(map)
       svg.value = d3.select(map.getPanes().overlayPane)
         .select('svg')
         .attr('pointer-events', 'auto')
@@ -331,7 +331,7 @@ export default defineComponent({
       })
 
       const _svgLabel = unref(svgLabel)
-      _svgLabel(_svg, [...ls, ...as, ...pts], unref(rect), clipExtent)
+      _svgLabel(_svg, [...ls, ...as, ...pts], clipExtent)
 
       const _svgPoint = unref(svgPoint)
       _svgPoint(_svg, pts)

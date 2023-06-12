@@ -10,58 +10,59 @@ export function svgLabels(projection: any, context: any) {
 
   const { map } = context
 
-  const _entitybboxes: any = {}
+  let _entitybboxes: any = {}
   const _rdrawn = new RBush()
   const _textWidthCache: any = {}
   const _rskipped = new RBush()
 
   // Listed from highest to lowest priority
   const labelStack = [
-    ['line', 'aeroway', '*', 12],
-    ['line', 'highway', 'motorway', 12],
-    ['line', 'highway', 'trunk', 12],
-    ['line', 'highway', 'primary', 12],
-    ['line', 'highway', 'secondary', 12],
-    ['line', 'highway', 'tertiary', 12],
-    ['line', 'highway', '*', 12],
-    ['line', 'railway', '*', 12],
-    ['line', 'waterway', '*', 12],
-    ['area', 'aeroway', '*', 12],
-    ['area', 'amenity', '*', 12],
-    ['area', 'building', '*', 12],
-    ['area', 'historic', '*', 12],
-    ['area', 'leisure', '*', 12],
-    ['area', 'man_made', '*', 12],
-    ['area', 'natural', '*', 12],
-    ['area', 'shop', '*', 12],
-    ['area', 'tourism', '*', 12],
-    ['area', 'camp_site', '*', 12],
-    ['point', 'aeroway', '*', 10],
-    ['point', 'amenity', '*', 10],
-    ['point', 'building', '*', 10],
-    ['point', 'historic', '*', 10],
-    ['point', 'leisure', '*', 10],
-    ['point', 'man_made', '*', 10],
-    ['point', 'natural', '*', 10],
-    ['point', 'shop', '*', 10],
-    ['point', 'tourism', '*', 10],
-    ['point', 'camp_site', '*', 10],
-    ['line', 'ref', '*', 12],
-    ['area', 'ref', '*', 12],
-    ['point', 'ref', '*', 10],
-    ['line', 'name', '*', 12],
-    ['area', 'name', '*', 12],
-    ['point', 'name', '*', 10],
+    [GeometryTypeEnum.LINE_STRING, 'aeroway', '*', 12],
+    [GeometryTypeEnum.LINE_STRING, 'highway', 'motorway', 12],
+    [GeometryTypeEnum.LINE_STRING, 'highway', 'trunk', 12],
+    [GeometryTypeEnum.LINE_STRING, 'highway', 'primary', 12],
+    [GeometryTypeEnum.LINE_STRING, 'highway', 'secondary', 12],
+    [GeometryTypeEnum.LINE_STRING, 'highway', 'tertiary', 12],
+    [GeometryTypeEnum.LINE_STRING, 'highway', '*', 12],
+    [GeometryTypeEnum.LINE_STRING, 'railway', '*', 12],
+    [GeometryTypeEnum.LINE_STRING, 'waterway', '*', 12],
+    [GeometryTypeEnum.POLYGON, 'aeroway', '*', 12],
+    [GeometryTypeEnum.POLYGON, 'amenity', '*', 12],
+    [GeometryTypeEnum.POLYGON, 'building', '*', 12],
+    [GeometryTypeEnum.POLYGON, 'historic', '*', 12],
+    [GeometryTypeEnum.POLYGON, 'leisure', '*', 12],
+    [GeometryTypeEnum.POLYGON, 'man_made', '*', 12],
+    [GeometryTypeEnum.POLYGON, 'natural', '*', 12],
+    [GeometryTypeEnum.POLYGON, 'shop', '*', 12],
+    [GeometryTypeEnum.POLYGON, 'tourism', '*', 12],
+    [GeometryTypeEnum.POLYGON, 'camp_site', '*', 12],
+    [GeometryTypeEnum.POINT, 'aeroway', '*', 10],
+    [GeometryTypeEnum.POINT, 'amenity', '*', 10],
+    [GeometryTypeEnum.POINT, 'building', '*', 10],
+    [GeometryTypeEnum.POINT, 'historic', '*', 10],
+    [GeometryTypeEnum.POINT, 'leisure', '*', 10],
+    [GeometryTypeEnum.POINT, 'man_made', '*', 10],
+    [GeometryTypeEnum.POINT, 'natural', '*', 10],
+    [GeometryTypeEnum.POINT, 'shop', '*', 10],
+    [GeometryTypeEnum.POINT, 'tourism', '*', 10],
+    [GeometryTypeEnum.POINT, 'camp_site', '*', 10],
+    [GeometryTypeEnum.LINE_STRING, 'ref', '*', 12],
+    [GeometryTypeEnum.POLYGON, 'ref', '*', 12],
+    [GeometryTypeEnum.POINT, 'ref', '*', 10],
+    [GeometryTypeEnum.LINE_STRING, 'name', '*', 12],
+    [GeometryTypeEnum.POLYGON, 'name', '*', 12],
+    [GeometryTypeEnum.POINT, 'name', '*', 10],
   ]
 
   function get(array: Array<any>, prop: string) {
     return function (_d: any, i: number) { return array[i][prop] }
   }
 
-  function textWidth(text: string, size: number | string, elem?: SVGTextContentElement): number {
-    let c: any = _textWidthCache[size]
+  function textWidth(text: string, size: number, elem?: SVGTextContentElement): number {
+    let c = _textWidthCache[size]
     if (!c)
       c = _textWidthCache[size] = {}
+
     if (c[text]) {
       return c[text]
     }
@@ -77,6 +78,46 @@ export function svgLabels(projection: any, context: any) {
       else
         return size / 3 * (2 * text.length + str.length)
     }
+  }
+
+  function drawLinePaths(selection: any, entities: any, classes: string, labels: Array<any>) {
+    const paths = selection.selectAll('path')
+      .data(entities)
+
+    // exit
+    paths.exit()
+      .remove();
+
+    // enter/update
+    paths.enter()
+      .append('path')
+      .style('stroke-width', get(labels, 'font-size'))
+      .attr('id', function(d) { return `labelpath-${d.wid}` })
+      .attr('class', classes)
+      .merge(paths)
+      .attr('d', get(labels, 'lineString'));
+
+  }
+
+  function drawLineLabels(selection: any, entities: any, classes: string, labels: Array<any>) {
+    const texts = selection.selectAll(`text.${classes}`)
+      .data(entities)
+
+    texts
+      .exit()
+      .remove()
+
+    texts.enter()
+      .append('text')
+      .attr('class', (d: any, i: number) => { return `${classes} ${labels[i].classes} ${d.wid}` })
+      .append('textPath')
+      .attr('class', 'textpath')
+
+    selection.selectAll('text.' + classes).selectAll('.textpath')
+      .data(entities)
+      .attr('startOffset', '50%')
+      .attr('xlink:href', function(d) { return '#labelpath-' + d.wid; })
+      .text((d: any) => { return utilDisplayNameForPath(d.properties)});
   }
 
   function drawPointLabels(selection: any, entities: Array<any>, classes: string, labels: Array<any>) {
@@ -95,44 +136,29 @@ export function svgLabels(projection: any, context: any) {
       .attr('x', get(labels, 'x'))
       .attr('y', get(labels, 'y'))
       .style('text-anchor', get(labels, 'textAnchor'))
-      .text((d) => { return utilDisplayName(d.properties) })
+      .text((d: any) => { return utilDisplayName(d.properties) })
       .each((d: any, i: number) => {
         textWidth(utilDisplayName(d.properties), labels[i].height, this)
       })
   }
 
-  function drawLineLabels(selection: any, entities: any, classes: string, labels: Array<any>) {
-    const texts = selection.selectAll(`text.${classes}`).data(entities)
-
-    texts.exit().remove()
-
-    texts.enter()
-      .append('text')
-      .attr('class', (d: any, i: number) => { return `${classes} ${labels[i].classes} ${d.wid}` })
-      .append('textPath')
-      .attr('class', 'textpath')
-
-    selection.selectAll(`text.${classes}`).selectAll('.textpath')
-      .data(entities)
-      .attr('startOffset', '50%')
-      .attr('xlink:href', (d: any) => { return `#labelpath-${d.wid}` })
-      .text(utilDisplayName)
-  }
-
-  function drawLabels(selection: any, entities: Array<any>, rect: DOMRect, clipExtent: Array<number>) {
+  function drawLabels(selection: any, entities: Array<any>, clipExtent: Array<Array<number>>) {
     const labelable: Array<any> = []
     const renderNodeAs: any = {}
-    let i, j, k, entity, geometry: any
+    let i, k, entity, geometry: any
     for (i = 0; i < labelStack.length; i++)
       labelable.push([])
+
+    _rdrawn.clear()
+    _rskipped.clear()
+    _entitybboxes = {}
 
     for (i = 0; i < entities.length; i++) {
       entity = entities[i]
       geometry = entity.geometry.type
       if (geometry === GeometryTypeEnum.POINT) {
         let markerPadding
-        geometry = 'point'
-        renderNodeAs[entity.wid] = 'point'
+        renderNodeAs[entity.wid] = GeometryTypeEnum.POINT
         if (map.getZoom() >= 18)
           markerPadding = 20
 
@@ -144,7 +170,6 @@ export function svgLabels(projection: any, context: any) {
             entity.geometry.coordinates[0]),
         )
         const nodePadding = 10
-        console.log(coord)
 
         const bbox = {
           minX: coord.x - nodePadding,
@@ -171,20 +196,20 @@ export function svgLabels(projection: any, context: any) {
     }
 
     const positions: any = {
-      point: [],
-      line: [],
-      area: [],
+      Point: [],
+      LineString: [],
+      Polygon: [],
     }
 
     const labelled: any = {
-      point: [],
-      line: [],
-      area: [],
+      Point: [],
+      LineString: [],
+      Polygon: [],
     }
 
     // 尝试为可标记实体找到一个有效标签
     for (k = 0; k < labelable.length; k++) {
-      const fontSize: number | string = labelStack[k][3]
+      const fontSize: number = labelStack[k][3]
 
       for (i = 0; i < labelable[k].length; i++) {
         entity = labelable[k][i]
@@ -195,16 +220,13 @@ export function svgLabels(projection: any, context: any) {
         const width = name && textWidth(name, fontSize)
         let p = null
         if (geometry === GeometryTypeEnum.POINT) {
-          geometry = 'point'
           const renderAs = renderNodeAs[entity.wid]
           p = getPointLabel(entity, width, fontSize, renderAs)
         }
         else if (geometry === GeometryTypeEnum.LINE_STRING) {
-          geometry = 'line'
           p = getLineLabel(entity, width, fontSize)
         }
         else if (geometry === GeometryTypeEnum.POLYGON) {
-          geometry = 'area'
           console.log(geometry)
         }
 
@@ -217,14 +239,17 @@ export function svgLabels(projection: any, context: any) {
     }
 
     function getPointLabel(entity: any, width: any, height: number | string, geometry: string): any {
-      height = Number(height)
-      const y = (geometry === 'point' ? -12 : 0)
+      const y = (geometry === GeometryTypeEnum.POINT ? -12 : 0)
       const pointOffsets: any = {
         ltr: [15, y, 'start'],
         rtl: [-15, y, 'end'],
       }
 
-      const coord = map.latLngToLayerPoint(L.latLng(entity.geometry.coordinates[1], entity.geometry.coordinates[0]))
+      const coord = map.latLngToLayerPoint(L.latLng(
+        entity.geometry.coordinates[1],
+        entity.geometry.coordinates[0],
+      ))
+
       const textPadding = 2
       const offset = pointOffsets.ltr
       const p = {
@@ -243,13 +268,18 @@ export function svgLabels(projection: any, context: any) {
         maxY: p.y + (height / 2) + textPadding,
       }
 
-      if (tryInsert([bbox], entity.id, true))
+      if (tryInsert([bbox], entity.wid, true))
         return p
     }
 
-    function getLineLabel(entity: any, width: any, height: number | string) {
-      height = Number(height)
-      const viewport = clipExtent
+    function getLineLabel(entity: any, width: any, height: number) {
+      const viewport = [
+        [clipExtent[0][0], clipExtent[0][1]],
+        [clipExtent[0][0], clipExtent[1][1]],
+        [clipExtent[1][0], clipExtent[1][1]],
+        [clipExtent[1][0], clipExtent[0][1]],
+        [clipExtent[0][0], clipExtent[0][1]]
+      ]
       const points = entity.geometry.coordinates.map((e: any) => {
         const { x, y } = map.latLngToLayerPoint(L.latLng(e[1], e[0]))
         return [x, y]
@@ -268,45 +298,51 @@ export function svgLabels(projection: any, context: any) {
         const offset = lineOffsets[i]
         const middle = offset / 100 * length
         const start = middle - width / 2
+
         if (start < 0 || start + width > length)
           continue
+
         let sub = subpath(points, start, start + width)
-        if (!sub || !geoPolygonIntersectsPolygon(viewport, sub, true))
-          continue
 
-        const isReverse = reverse(sub)
-        if (isReverse)
-          sub = sub.reverse()
+        if (!sub || !geoPolygonIntersectsPolygon(viewport, sub, true)) {
+          continue;
+        }
 
-        const bboxes = []
-        const boxsize = (height + 2) / 2
+        if (reverse(sub)) {
+          sub = sub.reverse();
+        }
 
-        for (let j = 0; j < sub.length - 1; i++) {
-          const a = sub[j]
-          const b = sub[j + 1]
-          const num = Math.max(1, Math.floor(geoVecLength(a, b) / boxsize / 2))
+        const bboxes = [];
+        const boxsize = (height + 2) / 2;
+
+        for (let j = 0; j < sub.length - 1; j++) {
+          const a = sub[j];
+          const b = sub[j + 1];
+          // split up the text into small collision boxes
+          const num = Math.max(1, Math.floor(geoVecLength(a, b) / boxsize / 2));
+
           for (let box = 0; box < num; box++) {
-            const p = geoVecInterp(a, b, box / num)
-            const x0 = p[0] - boxsize - padding
-            const y0 = p[1] - boxsize - padding
-            const x1 = p[0] + boxsize + padding
-            const y1 = p[1] + boxsize + padding
+            const p = geoVecInterp(a, b, box / num);
+            const x0 = p[0] - boxsize - padding;
+            const y0 = p[1] - boxsize - padding;
+            const x1 = p[0] + boxsize + padding;
+            const y1 = p[1] + boxsize + padding;
 
             bboxes.push({
               minX: Math.min(x0, x1),
               minY: Math.min(y0, y1),
               maxX: Math.max(x0, x1),
-              maxY: Math.max(y0, y1),
-            })
+              maxY: Math.max(y0, y1)
+            });
           }
         }
 
-        if (tryInsert(bboxes, entity.wid, false)) {
+        if (tryInsert(bboxes, entity.wid, false)) {   // accept this one
           return {
             'font-size': height + 2,
-            'lineString': lineString(sub),
-            'startOffset': `${offset}%`,
-          }
+            lineString: lineString(sub),
+            startOffset: offset + '%'
+          };
         }
       }
 
@@ -322,6 +358,7 @@ export function svgLabels(projection: any, context: any) {
       function subpath(points: Array<any>, from: number, to: number) {
         let sofar = 0
         let start, end, i0, i1
+
         for (let i = 0; i < points.length - 1; i++) {
           const a = points[i]
           const b = points[i + 1]
@@ -330,21 +367,22 @@ export function svgLabels(projection: any, context: any) {
           if (!start && sofar + current >= from) {
             portion = (from - sofar) / current
             start = [
-              a.x + portion * (b.x - a.x),
-              a.y + portion * (b.y - a.y),
+              a[0] + portion * (b[0] - a[0]),
+              a[1] + portion * (b[1] - a[1]),
             ]
             i0 = i + 1
           }
           if (!end && sofar + current >= to) {
             portion = (to - sofar) / current
             end = [
-              a.x + portion * (b.x - a.x),
-              a.y + portion * (b.y - a.y),
+              a[0] + portion * (b[0] - a[0]),
+              a[1] + portion * (b[1] - a[1]),
             ]
             i1 = i + 1
           }
           sofar += current
         }
+
         const result = points.slice(i0, i1)
         result.unshift(start)
         result.push(end)
@@ -365,27 +403,21 @@ export function svgLabels(projection: any, context: any) {
       _rdrawn.insert(bbox)
     }
 
-    function tryInsert(bboxes: Array<any>, id: string, saveSkipped: boolean): boolean {
+    function tryInsert(bboxes: Array<any>, id: string, saveSkipped: boolean) {
       let skipped = false
+
       for (let i = 0; i < bboxes.length; i++) {
         const bbox = bboxes[i]
         bbox.id = id
-        console.log(bbox)
-        console.log(rect)
 
-        if (bbox.minX < 0 || bbox.minY < 0 || bbox.maxX > rect.width || bbox.maxY > rect.height) {
-          console.log(' min max ')
-
-          skipped = true
-          break
-        }
         if (_rdrawn.collides(bbox)) {
-          console.log('collides')
           skipped = true
           break
         }
       }
+
       _entitybboxes[id] = bboxes
+
       if (skipped) {
         if (saveSkipped)
           _rskipped.load(bboxes)
@@ -406,14 +438,17 @@ export function svgLabels(projection: any, context: any) {
 
     const halo = layer.selectAll('.labels-group.halo')
     const label = layer.selectAll('.labels-group.label')
+    console.log('positions: ', positions)
+    console.log('labelled: ', labelled)
 
     // points
-    drawPointLabels(label, labelled.point, 'pointlabel', positions.point)
-    drawPointLabels(halo, labelled.point, 'pointlabel', positions.point)
+    drawPointLabels(label, labelled.Point, 'pointlabel', positions.Point)
+    drawPointLabels(halo, labelled.Point, 'pointlabel', positions.Point)
 
     // lines
-    drawLineLabels(label, labelled.line, 'linelabel', positions.line)
-    drawLineLabels(halo, labelled.line, 'linelabel-halo', positions.line)
+    drawLinePaths(layer, labelled.LineString, '', positions.LineString);
+    drawLineLabels(label, labelled.LineString, 'linelabel', positions.LineString)
+    drawLineLabels(halo, labelled.LineString, 'linelabel-halo', positions.LineString)
   }
 
   return drawLabels

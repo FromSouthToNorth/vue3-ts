@@ -15,7 +15,8 @@ import length from '@turf/length'
 import { v4 as uuidv4 } from 'uuid'
 import { svgDefs } from './svg/defs'
 import { svgPoints } from './svg/svgPoints'
-import { svgMarkerSegments } from './helpers'
+import type { Segments } from './helpers'
+import { dataKey, svgMarkerSegments } from './helpers'
 import { svgTagClasses } from './tag/tag_classes'
 import { miniTileLayer, tileLayers } from './tileLayers'
 
@@ -25,6 +26,8 @@ import login from '/@/assets/images/logo.png'
 import { behaviorHash } from '/@/hooks/core/useHash'
 import { GeometryTypeEnum } from '/@/enums/geometryTypeEnum'
 import { svgLabels } from './svg/labels'
+
+import type { GeoJSON } from './types'
 
 export default defineComponent({
   name: 'LeafletMap',
@@ -230,7 +233,7 @@ export default defineComponent({
         as = unref(areas).filter(filterArea)
         ls = unref(lines).filter(filterLine)
           .sort(waystack)
-        function waystack(a: any, b: any) {
+        function waystack(a: GeoJSON, b: GeoJSON) {
           let scoreA = 0
           let scoreB = 0
           const highway_stack: any = {
@@ -256,16 +259,12 @@ export default defineComponent({
       }
 
       // area clipPath
-      _svg
-        .selectAll('defs')
-        .selectAll('.clipPath-osm')
-        .remove()
       const path = d3_geoPath()
         .projection(projection)
       let clipPaths = _svg
         .selectAll('defs')
         .selectAll('.clipPath-osm')
-        .data(as)
+        .data(as, dataKey)
 
       const clipPathsEnter = clipPaths.enter()
         .append('clipPath')
@@ -310,7 +309,7 @@ export default defineComponent({
       let markers = onewaygroup.selectAll('path')
         .data(
           () => { return onewaydata },
-          (d: any) => { return [d.wid, d.index] },
+          (d: Segments) => { return [d.id, d.index] },
         )
 
       markers.exit()
@@ -345,7 +344,7 @@ export default defineComponent({
       return L.bounds(northEastPoint, southWestPoint)
     }
 
-    function filterLine(geoJSON: any): boolean {
+    function filterLine(geoJSON: GeoJSON): boolean {
       const layer = L.GeoJSON.geometryToLayer(geoJSON)
       const latLngs = layer.getLatLngs()
       const bounds = getBounds()
@@ -365,7 +364,7 @@ export default defineComponent({
       },
     }
 
-    function filterArea(geoJSON: any): boolean {
+    function filterArea(geoJSON: GeoJSON): boolean {
       const _map = unref(map)
       const layer = L.GeoJSON.geometryToLayer(geoJSON)
       const latLng = layer.getLatLngs()

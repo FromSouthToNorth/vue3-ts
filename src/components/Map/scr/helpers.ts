@@ -8,6 +8,13 @@ import {
   geoVecAngle,
   geoVecLength,
 } from '/@/geo/vector'
+import type { GeoJSON } from './types'
+
+export interface Segments {
+  d: string
+  id: string
+  index: number
+}
 
 export function svgMarkerSegments(
   projection: any,
@@ -15,14 +22,14 @@ export function svgMarkerSegments(
   dt: number,
   shouldReverse: any,
   bothDirections: any,
-): any {
-  return function (entity: any) {
+): (entity: GeoJSON) => Array<Segments> {
+  return function (entity: GeoJSON) {
     let i = 0
     let offset = dt
-    const segments: { id: any; index: number; d: string }[] = []
+    const segments: Array<Segments> = []
     const clip = d3_geoIdentity().clipExtent(clipExtent).stream
     const coordinates = [...entity.geometry.coordinates]
-    let a: any, b: any
+    let a: Array<number> | null, b: Array<number> | null
     if (shouldReverse(entity))
       coordinates.reverse()
 
@@ -76,4 +83,8 @@ export function svgMarkerSegments(
 
     return segments
   }
+}
+
+export function dataKey(entity: GeoJSON): string {
+  return `${entity.wid}v${(entity.v || 0)}`
 }

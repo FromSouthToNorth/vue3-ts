@@ -4,6 +4,7 @@ import { GeometryTypeEnum } from '/@/enums/geometryTypeEnum'
 import RBush from 'rbush'
 import { geoPathLength, geoPolygonIntersectsPolygon } from '/@/geo/geom'
 import { geoVecInterp, geoVecLength } from '/@/geo/vector'
+import { dataKey } from '../helpers'
 
 export function svgLabels(projection: any, context: any) {
   const path = d3_geoPath(projection)
@@ -82,7 +83,7 @@ export function svgLabels(projection: any, context: any) {
 
   function drawLinePaths(selection: any, entities: any, classes: string, labels: Array<any>) {
     const paths = selection.selectAll('path')
-      .data(entities)
+      .data(entities, dataKey)
 
     // exit
     paths.exit()
@@ -100,7 +101,7 @@ export function svgLabels(projection: any, context: any) {
 
   function drawLineLabels(selection: any, entities: any, classes: string, labels: Array<any>) {
     const texts = selection.selectAll(`text.${classes}`)
-      .data(entities, (d: any) => { return `${d.wid}v${0}` })
+      .data(entities, dataKey)
 
     texts
       .exit()
@@ -114,7 +115,7 @@ export function svgLabels(projection: any, context: any) {
 
     // update
     selection.selectAll(`text.${classes}`).selectAll('.textpath')
-      .data(entities, (d: any) => { return `${d.wid}v${0}` })
+      .data(entities, dataKey)
       .attr('startOffset', '50%')
       .attr('xlink:href', (d: any) => { return `#labelpath-${d.wid}` })
       .text((d: any) => { return utilDisplayNameForPath(d.properties) })
@@ -122,7 +123,7 @@ export function svgLabels(projection: any, context: any) {
 
   function drawPointLabels(selection: any, entities: Array<any>, classes: string, labels: Array<any>) {
     const texts = selection.selectAll(`text.${classes}`)
-      .data(entities)
+      .data(entities, dataKey)
 
     texts.exit()
       .remove()
@@ -207,14 +208,14 @@ export function svgLabels(projection: any, context: any) {
 
     const positions: any = {
       Point: [],
-      LineString: [],
       Polygon: [],
+      LineString: [],
     }
 
     const labelled: any = {
       Point: [],
-      LineString: [],
       Polygon: [],
+      LineString: [],
     }
 
     for (k = 0; k < labelable.length; k++) {
@@ -345,7 +346,7 @@ export function svgLabels(projection: any, context: any) {
         [clipExtent[1][0], clipExtent[0][1]],
         [clipExtent[0][0], clipExtent[0][1]],
       ]
-      const points = entity.geometry.coordinates.map((e: any) => {
+      const points = entity.geometry.coordinates.map((e: Array<number>) => {
         const { x, y } = map.latLngToLayerPoint(L.latLng(e[1], e[0]))
         return [x, y]
       })
@@ -368,7 +369,6 @@ export function svgLabels(projection: any, context: any) {
           continue
 
         let sub = subpath(points, start, start + width)
-
         if (!sub || !geoPolygonIntersectsPolygon(viewport, sub, true))
           continue
 
@@ -409,13 +409,13 @@ export function svgLabels(projection: any, context: any) {
         }
       }
 
-      function lineString(points: Array<any>) {
-        return `M${points.join('L')}`
-      }
-
       function reverse(p: Array<any>): boolean {
         const angle = Math.atan2(p[1][1] - p[0][1], p[1][0] - p[0][0])
         return !(p[0][0] < p[p.length - 1][0] && angle < Math.PI / 2 && angle > -Math.PI / 2)
+      }
+
+      function lineString(points: Array<any>) {
+        return `M${points.join('L')}`
       }
 
       function subpath(points: Array<any>, from: number, to: number) {

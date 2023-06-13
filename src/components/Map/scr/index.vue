@@ -103,6 +103,9 @@ export default defineComponent({
         zoom: 5,
         minZoom: 2,
         maxZoom: 24,
+        zoomSnap: 0.2,
+        zoomDelta: 0.2,
+        wheelPxPerZoomLevel: 200,
         center: [30.66071, 104.06167],
       })
       const _map: any = unref(map)

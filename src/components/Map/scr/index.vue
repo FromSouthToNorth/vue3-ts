@@ -27,6 +27,8 @@ import { behaviorHash } from '/@/hooks/core/useHash'
 import { GeometryTypeEnum } from '/@/enums/geometryTypeEnum'
 import { svgLabels } from './svg/labels'
 
+import { geojson } from '/@/data'
+
 import type { GeoJSON } from './types'
 
 export default defineComponent({
@@ -385,7 +387,7 @@ export default defineComponent({
       return clipPolygon.length > 0 && (!_zoomAreaField || !field)
     }
 
-    const jsonData = [...cd.features]
+    const jsonData = geojson
     function switchLayer() {
       jsonData.forEach((feature) => {
         const index = feature.id ? feature.id.indexOf('/') : ''

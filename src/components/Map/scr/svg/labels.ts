@@ -142,6 +142,16 @@ export function svgLabels(projection: any, context: any) {
       })
   }
 
+  function drawAreaLabels(selection: any, entities: Array<any>, classes: string, labels: Array<any>) {
+    entities = entities.filter(hasText)
+    labels = labels.filter(hasText)
+    drawPointLabels(selection, entities, classes, labels)
+
+    function hasText(_d: any, i: number) {
+      return labels[i].hasOwnProperty('x') && labels[i].hasOwnProperty('y')
+    }
+  }
+
   function drawLabels(selection: any, entities: Array<any>, clipExtent: Array<Array<number>>) {
     const labelable: Array<any> = []
     const renderNodeAs: any = {}
@@ -225,7 +235,9 @@ export function svgLabels(projection: any, context: any) {
         else if (geometry === GeometryTypeEnum.LINE_STRING) {
           p = getLineLabel(entity, width, fontSize)
         }
-        else if (geometry === GeometryTypeEnum.POLYGON) { /* empty */ }
+        else if (geometry === GeometryTypeEnum.POLYGON) {
+          p = getAreaLabel(entity, width, fontSize)
+        }
 
         if (p) {
           p.classes = `${geometry} tag-${labelStack[k][1]}`
@@ -235,7 +247,7 @@ export function svgLabels(projection: any, context: any) {
       }
     }
 
-    function getPointLabel(entity: any, width: any, height: number | string, geometry: string): any {
+    function getPointLabel(entity: any, width: number, height: number, geometry: string): any {
       const y = (geometry === GeometryTypeEnum.POINT ? -12 : 0)
       const pointOffsets: any = {
         ltr: [15, y, 'start'],
@@ -269,7 +281,63 @@ export function svgLabels(projection: any, context: any) {
         return p
     }
 
-    function getLineLabel(entity: any, width: any, height: number) {
+    function getAreaLabel(entity: any, width: number, height: number) {
+      const centroid = path.centroid(entity)
+      const area = L.GeoJSON.geometryToLayer(entity)
+      const { _northEast, _southWest } = area.getBounds()
+      const northEastXY = map.latLngToLayerPoint(_northEast)
+      const southWestXY = map.latLngToLayerPoint(_southWest)
+      const areaWidth = northEastXY.x - southWestXY.x
+      if (Number.isNaN(centroid[0]) || areaWidth < 20)
+        return
+      const iconSize = 17
+      const padding = 2
+      const p: any = {}
+
+      if (addLabel(0))
+        return p
+
+      function addIcon() {
+        const iconX = centroid[0] - (iconSize / 2)
+        const iconY = centroid[1] - (iconSize / 2)
+        const bbox = {
+          minX: iconX,
+          minY: iconY,
+          maxX: iconX + iconSize,
+          maxY: iconY + iconSize,
+        }
+
+        if (tryInsert([bbox], `${entity.id}I`, true)) {
+          p.transform = `translate(${iconX},${iconY})`
+          return true
+        }
+        return false
+      }
+
+      function addLabel(yOffset: number) {
+        if (width && areaWidth >= width + 20) {
+          const labelX = centroid[0]
+          const labelY = centroid[1] + yOffset
+          const bbox = {
+            minX: labelX - (width / 2) - padding,
+            minY: labelY - (height / 2) - padding,
+            maxX: labelX + (width / 2) + padding,
+            maxY: labelY + (height / 2) + padding,
+          }
+
+          if (tryInsert([bbox], entity.id, true)) {
+            p.x = labelX
+            p.y = labelY
+            p.textAnchor = 'middle'
+            p.height = height
+            return true
+          }
+        }
+        return false
+      }
+    }
+
+    function getLineLabel(entity: any, width: number, height: number) {
       const viewport = [
         [clipExtent[0][0], clipExtent[0][1]],
         [clipExtent[0][0], clipExtent[1][1]],
@@ -442,6 +510,10 @@ export function svgLabels(projection: any, context: any) {
     drawLinePaths(layer, labelled.LineString, '', positions.LineString)
     drawLineLabels(label, labelled.LineString, 'linelabel', positions.LineString)
     drawLineLabels(halo, labelled.LineString, 'linelabel-halo', positions.LineString)
+
+    // areas
+    drawAreaLabels(label, labelled.Polygon, 'arealabel', positions.Polygon)
+    drawAreaLabels(halo, labelled.Polygon, 'arealabel-halo', positions.Polygon)
   }
 
   return drawLabels

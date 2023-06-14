@@ -277,7 +277,7 @@ export default defineComponent({
   background: #000;
 }
 .legend {
-  font-size: 13px;
+  font-size: 10px;
   color: #333333;
   background-color: rgba(255,255,255,0.8);
   box-shadow: 0 0 15px rgba(0,0,0,0.2);
@@ -290,15 +290,19 @@ export default defineComponent({
     margin: 0;
     padding: 2px 6px;
 
-    & span{
+    & span {
       margin-right: 4px;
+    }
+
+    & d {
+      font-weight: bold;
     }
   }
 
   & img {
     width: 56px;
     display: block;
-    margin: 4px;
+    margin: 6px;
   }
 }
 </style>

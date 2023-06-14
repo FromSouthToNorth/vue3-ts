@@ -108,12 +108,7 @@ export function area(entity: GeoJSON) {
 export function layerInfo(feature: GeoJSON) {
   const { properties, geometry } = feature
   const legend = d3.select('.legend')
-  legend.selectAll('p').remove()
-  Object.keys(properties).forEach((key) => {
-    const p = legend.append('p').attr('class', 'ele')
-    p.append('span').text(`${key}:`)
-    p.append('b').text(properties[key])
-  })
+
   const info: any = {}
   if (geometry.type === GeometryTypeEnum.POLYGON) {
     info.key = '面积: '
@@ -123,8 +118,30 @@ export function layerInfo(feature: GeoJSON) {
     info.key = '长度: '
     info.value = `${turf_Length(feature, { units: 'kilometers' }).toFixed(4)} 公里`
   }
+  properties[info.key] = info.value
+  const data = Object.keys(properties)
 
-  const p = legend.append('p').attr('class', 'ele')
-  p.append('span').text(info.key)
-  p.append('b').text(info.value)
+  const list = legend.selectAll('p')
+    .data(
+      data,
+      (d: string, i: number) => {
+        return [d, i]
+      },
+    )
+
+  list.exit()
+    .remove()
+
+  const enter = list.enter()
+    .append('p')
+    .attr('class', 'ele')
+    .order()
+
+  enter
+    .append('span')
+    .text((d: string) => { return `${d}: ` })
+
+  enter
+    .append('d')
+    .text((d: string) => { return properties[d] })
 }

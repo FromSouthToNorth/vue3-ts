@@ -1,0 +1,16 @@
+{
+  "extends": ["stylelint-config-standard"],
+  "overrides": [
+    {
+      "files": ["*.less", "**/*.less"],
+      "customSyntax": "postcss-less",
+      "extends": ["stylelint-config-standard", "stylelint-config-recommended-vue"]
+    }
+  ],
+  "rules": {
+    "selector-not-notation": null,
+    "import-notation": null,
+    "function-no-unknown": null,
+    "selector-class-pattern": null
+  }
+}

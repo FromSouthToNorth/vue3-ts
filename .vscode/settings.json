@@ -1,0 +1,11 @@
+{
+  "vue.codeActions.enabled": false,
+  "stylelint.enable": true,
+  "stylelint.validate": ["css", "less", "postcss", "scss", "vue", "sass"],
+  "editor.codeActionsOnSave": {
+    "source.fixAll": false,
+    "source.fixAll.eslint": true, // this allows ESLint to auto fix on save
+    "source.fixAll.stylelint": true,
+    "source.organizeImports": false
+  }
+}

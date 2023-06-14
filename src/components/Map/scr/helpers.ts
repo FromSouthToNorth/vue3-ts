@@ -1,7 +1,13 @@
+import * as d3 from 'd3'
+
 import {
+  geoArea as d3_geoArea,
   geoIdentity as d3_geoIdentity,
   geoStream as d3_geoStream,
 } from 'd3-geo'
+
+import turf_Area from '@turf/area'
+import turf_Length from '@turf/length'
 
 import {
   geoVecAdd,
@@ -9,6 +15,7 @@ import {
   geoVecLength,
 } from '/@/geo/vector'
 import type { GeoJSON } from './types'
+import { GeometryTypeEnum } from '/@/enums/geometryTypeEnum'
 
 export interface Segments {
   d: string
@@ -87,4 +94,37 @@ export function svgMarkerSegments(
 
 export function dataKey(entity: GeoJSON): string {
   return `${entity.wid}v${(entity.v || 0)}`
+}
+
+export function area(entity: GeoJSON) {
+  let area = d3_geoArea(entity)
+  if (area > 2 * Math.PI) {
+    entity.geometry.coordinates[0] = entity.geometry.coordinates[0].reverse()
+    area = d3_geoArea(entity)
+  }
+  return Number.isNaN(area) ? 0 : area
+}
+
+export function layerInfo(feature: GeoJSON) {
+  const { properties, geometry } = feature
+  const legend = d3.select('.legend')
+  legend.selectAll('p').remove()
+  Object.keys(properties).forEach((key) => {
+    const p = legend.append('p').attr('class', 'ele')
+    p.append('span').text(`${key}:`)
+    p.append('b').text(properties[key])
+  })
+  const info: any = {}
+  if (geometry.type === GeometryTypeEnum.POLYGON) {
+    info.key = '面积: '
+    info.value = `${turf_Area(feature).toFixed(4)} m²`
+  }
+  if (geometry.type === GeometryTypeEnum.LINE_STRING) {
+    info.key = '长度: '
+    info.value = `${turf_Length(feature, { units: 'kilometers' }).toFixed(4)} 公里`
+  }
+
+  const p = legend.append('p').attr('class', 'ele')
+  p.append('span').text(info.key)
+  p.append('b').text(info.value)
 }

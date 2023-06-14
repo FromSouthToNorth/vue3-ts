@@ -2,34 +2,23 @@
 import { defineComponent, onMounted, ref, unref } from 'vue'
 
 import * as d3 from 'd3'
-import {
-  geoPath as d3_geoPath,
-  geoTransform as d3_geoTransform,
-} from 'd3-geo'
+import { geoTransform as d3_geoTransform } from 'd3-geo'
 import RBush from 'rbush'
 import * as L from 'leaflet'
 import 'leaflet-minimap'
-import area from '@turf/area'
-import length from '@turf/length'
 
 import { v4 as uuidv4 } from 'uuid'
-import { svgDefs } from './svg/defs'
-import { svgPoints } from './svg/svgPoints'
-import type { Segments } from './helpers'
-import { dataKey, svgMarkerSegments } from './helpers'
 import { svgTagClasses } from './tag/tag_classes'
 import { miniTileLayer, tileLayers } from './tileLayers'
 
-import cd from '/@/data/file.json'
-import { utilArrayFlatten } from '/@/util'
 import login from '/@/assets/images/logo.png'
 import { behaviorHash } from '/@/hooks/core/useHash'
 import { GeometryTypeEnum } from '/@/enums/geometryTypeEnum'
-import { svgLabels } from './svg/labels'
+import { svgAreas, svgDefs, svgLabels, svgLines, svgPoints } from './svg'
 
 import { geojson } from '/@/data'
 
-import type { GeoJSON } from './types'
+import { layerInfo } from './helpers'
 
 export default defineComponent({
   name: 'LeafletMap',
@@ -44,34 +33,12 @@ export default defineComponent({
 
     const renderer = ref<any>(null)
 
+    const svgArea = ref<any>()
+    const svgLine = ref<any>()
     const svgPoint = ref<any>()
     const svgLabel = ref<any>()
     const areaJSON = ref<any>(null)
     const lineJSON = ref<any>(null)
-
-    function layerInfo(layer: any) {
-      const { properties, geometry } = layer.feature
-      const _legendRef = unref(legendRef)
-      _legendRef.selectAll('p').remove()
-      Object.keys(properties).forEach((key) => {
-        const p = _legendRef.append('p').attr('class', 'ele')
-        p.append('span').text(`${key}:`)
-        p.append('b').text(properties[key])
-      })
-      const info: any = {}
-      if (geometry.type === GeometryTypeEnum.POLYGON) {
-        info.key = '面积: '
-        info.value = `${area(layer.feature).toFixed(4)} m²`
-      }
-      if (geometry.type === GeometryTypeEnum.LINE_STRING) {
-        info.key = '长度: '
-        info.value = `${length(layer.feature, { units: 'kilometers' }).toFixed(4)} 公里`
-      }
-
-      const p = _legendRef.append('p').attr('class', 'ele')
-      p.append('span').text(info.key)
-      p.append('b').text(info.value)
-    }
 
     const svg = ref<any | null>(null)
     const rect = ref<DOMRect | null>(null)
@@ -106,7 +73,6 @@ export default defineComponent({
         minZoom: 2,
         maxZoom: 24,
         zoomSnap: 0.2,
-        zoomDelta: 0.2,
         wheelPxPerZoomLevel: 200,
         center: [30.66071, 104.06167],
       })
@@ -135,9 +101,6 @@ export default defineComponent({
     function init(map: any) {
       // init dataSource
       switchLayer()
-
-      svgLabel.value = svgLabels(projection, { map })
-      svgPoint.value = svgPoints({ map })
 
       tileLayers.forEach((layer) => {
         L.tileLayer(layer.url, layer.options)
@@ -170,14 +133,14 @@ export default defineComponent({
         renderer: unref(renderer),
         style: lineJSONStyle,
       }).on('click', (e: any) => {
-        layerInfo(e.layer)
+        layerInfo(e.layer.feature)
       }).addTo(map)
       // init areaLayer
       areaJSON.value = L.geoJSON(null, {
         renderer: unref(renderer),
         style: areaJSONStyle,
       }).on('click', (e: any) => {
-        layerInfo(e.layer)
+        layerInfo(e.layer.feature)
       }).addTo(map)
       const _svg = unref(svg)
       // init svg -> g.points...
@@ -187,14 +150,17 @@ export default defineComponent({
       _svg.append('g').attr('class', 'onewaygroup')
       _svg.append('g').attr('class', 'labels')
       _svg.append('defs').attr('class', 'surface-defs')
+
+      svgArea.value = svgAreas(projection, { map, JSON: unref(areaJSON) })
+      svgLine.value = svgLines(projection, { map, JSON: unref(lineJSON) })
+      svgPoint.value = svgPoints({ map })
+      svgLabel.value = svgLabels(projection, { map })
     }
 
     function redraw() {
       const _map = unref(map)
       const _svg = unref(svg)
-      const areaJson = unref(areaJSON)
       const lineJson = unref(lineJSON)
-      areaJson.clearLayers()
       lineJson.clearLayers()
       let as = []
       let ls = []
@@ -235,110 +201,23 @@ export default defineComponent({
       }
 
       if (_map.getZoom() >= 16) {
-        as = unref(areas).filter(filterArea)
-        ls = unref(lines).filter(filterLine)
-          .sort(waystack)
-        function waystack(a: GeoJSON, b: GeoJSON) {
-          let scoreA = 0
-          let scoreB = 0
-          const highway_stack: any = {
-            motorway: 0,
-            motorway_link: 1,
-            trunk: 2,
-            trunk_link: 3,
-            primary: 4,
-            primary_link: 5,
-            secondary: 6,
-            tertiary: 7,
-            unclassified: 8,
-            residential: 9,
-            service: 10,
-            footway: 11,
-          }
-          if (a.properties.highway)
-            scoreA -= highway_stack[a.properties.highway]
-          if (b.properties.highway)
-            scoreB -= highway_stack[b.properties.highway]
-          return scoreA - scoreB
-        }
+        as = unref(areas)
+        ls = unref(lines)
       }
 
-      // area clipPath
-      const path = d3_geoPath()
-        .projection(projection)
-      let clipPaths = _svg
-        .selectAll('defs')
-        .selectAll('.clipPath-osm')
-        .data(as, dataKey)
+      const bounds = getBounds()
 
-      const clipPathsEnter = clipPaths.enter()
-        .append('clipPath')
-        .attr('class', 'clipPath-osm')
-        .attr('id', (entity: any) => {
-          return `hy-${entity.wid}-clippath`
-        })
+      const _svgArea = unref(svgArea)
+      _svgArea(_svg, as, bounds)
 
-      clipPathsEnter
-        .append('path')
-
-      clipPaths = clipPaths.merge(clipPathsEnter)
-        .selectAll('path')
-        .attr('d', path)
-
-      areaJson.addData(as)
-      lineJson.addData(ls)
-
-      // line oneway
-      const segments: Array<any> = []
-      lineJson.eachLayer((layer: any) => {
-        const { feature } = layer
-        if (feature.properties.oneway || feature.properties.waterway) {
-          const onewaySegments = svgMarkerSegments(
-            projection,
-            clipExtent,
-            35,
-            () => {
-              return feature.properties.oneway === '-1'
-            },
-            () => {
-              return feature.properties.oneway === 'reversible'
-              || feature.properties.oneway === 'alternating'
-            })
-          const onewaydata = onewaySegments(feature)
-          if (onewaydata.length)
-            segments.push(onewaydata)
-        }
-      })
-      const onewaydata = utilArrayFlatten(segments)
-      const onewaygroup = _svg.select('g.onewaygroup')
-      let markers = onewaygroup.selectAll('path')
-        .data(
-          () => { return onewaydata },
-          (d: Segments) => { return [d.id, d.index] },
-        )
-
-      markers.exit()
-        .remove()
-
-      markers = markers.enter()
-        .append('path')
-        .attr('class', 'oneway')
-        .merge(markers)
-        .attr('marker-mid', 'url(#oneway-marker)')
-        .attr('d', (d: any) => {
-          return d.d
-        })
-
-      areaJson.eachLayer((layer: any) => {
-        d3.select(layer._path)
-          .attr('clip-path', `url(#hy-${layer.feature.wid}-clippath)`)
-      })
-
-      const _svgLabel = unref(svgLabel)
-      _svgLabel(_svg, [...ls, ...as, ...pts], clipExtent)
+      const _svgLine = unref(svgLine)
+      _svgLine(_svg, ls, bounds, clipExtent)
 
       const _svgPoint = unref(svgPoint)
       _svgPoint(_svg, pts)
+
+      const _svgLabel = unref(svgLabel)
+      _svgLabel(_svg, [...ls, ...as, ...pts], clipExtent)
     }
 
     function getBounds() {
@@ -347,44 +226,6 @@ export default defineComponent({
       const northEastPoint = _map.latLngToLayerPoint(_northEast)
       const southWestPoint = _map.latLngToLayerPoint(_southWest)
       return L.bounds(northEastPoint, southWestPoint)
-    }
-
-    function filterLine(geoJSON: GeoJSON): boolean {
-      const layer = L.GeoJSON.geometryToLayer(geoJSON)
-      const latLngs = layer.getLatLngs()
-      const bounds = getBounds()
-      for (let i = 0, j = i + 1; j < latLngs.length;) {
-        const start = map.value.latLngToLayerPoint(latLngs[i++])
-        const end = map.value.latLngToLayerPoint(latLngs[j++])
-        const boundsPoints = L.LineUtil.clipSegment(start, end, bounds)
-        if (boundsPoints.length)
-          return true
-      }
-      return false
-    }
-
-    const zoomAreaField: any = {
-      16: {
-        field: 'building',
-      },
-    }
-
-    function filterArea(geoJSON: GeoJSON): boolean {
-      const _map = unref(map)
-      const layer = L.GeoJSON.geometryToLayer(geoJSON)
-      const latLng = layer.getLatLngs()
-      const polygonPoints: Array<any> = []
-      latLng.forEach((lls: any) => {
-        lls.forEach((latlng: any) => {
-          const point = _map.latLngToLayerPoint(latlng)
-          polygonPoints.push(point)
-        })
-      })
-      const clipPolygon = L.PolyUtil.clipPolygon(polygonPoints, getBounds())
-      const _zoomAreaField = zoomAreaField[_map.getZoom()]
-      const field = _zoomAreaField ? geoJSON.properties[_zoomAreaField.field] : undefined
-
-      return clipPolygon.length > 0 && (!_zoomAreaField || !field)
     }
 
     const jsonData = geojson
@@ -444,6 +285,7 @@ export default defineComponent({
   max-height: 400px;
   overflow-x: scroll;
   display: block;
+
   & p {
     margin: 0;
     padding: 2px 6px;

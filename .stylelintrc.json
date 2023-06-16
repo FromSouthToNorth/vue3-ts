@@ -21,12 +21,14 @@
     }
   ],
   "rules": {
-    "selector-not-notation": null,
+    "indentation": 2,
+    "no-eol-whitespace": true,
     "import-notation": null,
     "function-no-unknown": null,
+    "selector-not-notation": null,
     "selector-class-pattern": null,
-    "indentation": 2,
+    "number-leading-zero": "never",
     "media-feature-range-notation": "prefix",
-    "no-eol-whitespace": true
+    "declaration-empty-line-before": "never"
   }
 }

@@ -25,8 +25,8 @@ html, body {
   5. Improve text rendering
 */
 body {
-  line-height: 1.5;
   -webkit-font-smoothing: antialiased;
+  line-height: 1.5;
 }
 
 /*
@@ -69,25 +69,23 @@ p, h1, h2, h3, h4, h5, h6 {
 }
 
 :root {
-  font-family: JetBrains Mono, Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
-  font-weight: 400;
-
-  color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
   background-color: #242424;
-
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
+  color: rgb(255 255 255 / 87%);
+  font-family: "JetBrains Mono", Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  -webkit-text-size-adjust: 100%;
+  font-weight: 400;
+  line-height: 1.5;
+  text-rendering: optimizelegibility;
+  color-scheme: light dark;
+  font-synthesis: none;
+  text-size-adjust: 100%;
 }
 
 @media (prefers-color-scheme: light) {
   :root {
+    background-color: #fff;
     color: #213547;
-    background-color: #ffffff;
   }
 
   a:hover {

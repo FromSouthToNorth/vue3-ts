@@ -22,6 +22,7 @@
     flex-wrap: wrap;
     margin: 0 -16px;
   }
+
   .col {
     display: flex;
     width: 50%;
@@ -42,15 +43,14 @@
 }
 
 .card {
-  transition: transform .15s ease-in-out,border-color .15s ease-in-out;
   display: flex;
-  flex-direction: column;
-  flex-wrap: wrap;
-  border: 1px solid rgba(25,25,28,0.2);
-  cursor: pointer;
-  padding: 0 0 12px;
-  margin: 0 0 32px;
-  border-radius: 10px;
-  overflow: hidden;
+  flex-flow: column wrap;
   width: 100%;
+  margin: 0 0 32px;
+  padding: 0 0 12px;
+  overflow: hidden;
+  transition: transform .15s ease-in-out,border-color .15s ease-in-out;
+  border: 1px solid rgb(25 25 28 / 20%);
+  border-radius: 10px;
+  cursor: pointer;
 }

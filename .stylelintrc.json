@@ -1,16 +1,32 @@
 {
-  "extends": ["stylelint-config-standard"],
+  "extends": ["stylelint-config-standard", "stylelint-config-property-sort-order-smacss"],
+  "plugins": ["stylelint-order"],
   "overrides": [
+    {
+      "files": ["'**/*.(css|html|vue)"],
+      "customSyntax": "postcss-html"
+    },
     {
       "files": ["*.less", "**/*.less"],
       "customSyntax": "postcss-less",
       "extends": ["stylelint-config-standard", "stylelint-config-recommended-vue"]
+    },
+    {
+      "files": ["*.scss", "**/*.scss"],
+      "customSyntax": "postcss-scss",
+      "extends": ["stylelint-config-standard-scss", "stylelint-config-recommended-vue/scss"],
+      "rule": {
+        "scss/percent-placeholder-pattern": null
+      }
     }
   ],
   "rules": {
     "selector-not-notation": null,
     "import-notation": null,
     "function-no-unknown": null,
-    "selector-class-pattern": null
+    "selector-class-pattern": null,
+    "indentation": 2,
+    "media-feature-range-notation": "prefix",
+    "no-eol-whitespace": true
   }
 }

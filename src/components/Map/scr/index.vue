@@ -267,24 +267,22 @@ export default defineComponent({
 
 #map-container {
   position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  overflow: hidden;
-  height: 100%;
+  inset: 0;
   width: 100%;
+  height: 100%;
+  overflow: hidden;
   background: #000;
 }
+
 .legend {
-  font-size: 10px;
-  color: #333333;
-  background-color: rgba(255,255,255,0.8);
-  box-shadow: 0 0 15px rgba(0,0,0,0.2);
-  border-radius: 4px;
+  display: block;
   max-height: 400px;
   overflow-x: scroll;
-  display: block;
+  border-radius: 4px;
+  background-color: rgb(255 255 255 / 80%);
+  box-shadow: 0 0 15px rgb(0 0 0 / 20%);
+  color: #333;
+  font-size: 10px;
 
   & p {
     margin: 0;
@@ -293,15 +291,11 @@ export default defineComponent({
     & span {
       margin-right: 4px;
     }
-
-    & d {
-      font-weight: bold;
-    }
   }
 
   & img {
-    width: 56px;
     display: block;
+    width: 56px;
     margin: 6px;
   }
 }

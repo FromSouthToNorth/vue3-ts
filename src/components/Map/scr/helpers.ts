@@ -142,6 +142,6 @@ export function layerInfo(feature: GeoJSON) {
     .text((d: string) => { return `${d}: ` })
 
   enter
-    .append('d')
+    .append('b')
     .text((d: string) => { return properties[d] })
 }

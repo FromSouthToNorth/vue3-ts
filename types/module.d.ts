@@ -12,3 +12,7 @@ declare module 'virtual:*' {
   const result: any;
   export default result;
 }
+
+declare module 'uuid' {
+  uuid4v()
+}

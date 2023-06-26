@@ -272,31 +272,33 @@ export default defineComponent({
   height: 100%;
   overflow: hidden;
   background: #000;
-}
 
-.legend {
-  display: block;
-  max-height: 400px;
-  overflow-x: scroll;
-  border-radius: 4px;
-  background-color: rgb(255 255 255 / 80%);
-  box-shadow: 0 0 15px rgb(0 0 0 / 20%);
-  color: #333;
-  font-size: 10px;
+  .legend {
+    display: block;
+    max-height: 400px;
+    overflow-x: scroll;
+    border-radius: 4px;
+    background-color: rgb(255 255 255 / 80%);
+    box-shadow: 0 0 15px rgb(0 0 0 / 20%);
+    color: #333;
+    font-size: 10px;
 
-  & p {
-    margin: 0;
-    padding: 2px 6px;
+    & p {
+      margin: 0;
+      padding: 2px 6px;
 
-    & span {
-      margin-right: 4px;
+      & span {
+        margin-right: 4px;
+      }
+    }
+
+    & img {
+      display: block;
+      width: 86px;
+      height: auto;
+      margin: 6px;
     }
   }
 
-  & img {
-    display: block;
-    width: 56px;
-    margin: 6px;
-  }
 }
 </style>

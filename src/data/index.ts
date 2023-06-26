@@ -4,4 +4,4 @@ import file from './file.json'
 
 export { cd, beijing, file }
 
-export const geojson = [...beijing.features]
+export const geojson = [...cd.features]

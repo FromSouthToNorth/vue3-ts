@@ -271,16 +271,17 @@ export default defineComponent({
   width: 100%;
   height: 100%;
   overflow: hidden;
-  background: #000;
+  background: var(--bg-color);
 
   .legend {
     display: block;
     max-height: 400px;
     overflow-x: scroll;
     border-radius: 4px;
-    background-color: rgb(255 255 255 / 80%);
+    background-color: var(--bg-color-80);
+    background-image: linear-gradient(155deg,rgb(48 127 255 / 30%),transparent 24%);
     box-shadow: 0 0 15px rgb(0 0 0 / 20%);
-    color: #333;
+    color: var(--text-color);
     font-size: 10px;
 
     & p {

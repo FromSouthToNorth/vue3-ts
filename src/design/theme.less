@@ -1,0 +1,49 @@
+:root {
+  --bg-color: #242424;
+  --bg-color-80: rgb(36 36 36 / 80%);
+  --text-color: rgb(255 255 255 / 80%);
+  --border-color: #474749;
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    --bg-color: #fff;
+    --bg-color-80: rgb(255 255 255 / 80%);
+    --text-color: #213547;
+    --border-color: #fff;
+  }
+
+  a:hover {
+    color: #747bff;
+  }
+
+  button {
+    background-color: #f9f9f9;
+  }
+
+}
+
+#map-container {
+  .leaflet-control-scale-line {
+    border-color: var(--border-color);
+    background: var(--bg-color-80);
+    color: var(--text-color);
+    text-shadow: 1px 1px var(--bg-color);
+  }
+
+  .leaflet-bar a {
+    background: var(--bg-color);
+    color: var(--text-color);
+  }
+
+  .leaflet-control-minimap {
+    border: var(--border-color) solid;
+    background: var(--bg-color);
+  }
+
+  .leaflet-control-attribution {
+    background: var(--bg-color);
+  }
+}
+
+

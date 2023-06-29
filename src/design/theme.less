@@ -1,8 +1,9 @@
 :root {
   --bg-color: #242424;
   --bg-color-80: rgb(36 36 36 / 80%);
-  --text-color: rgb(255 255 255 / 80%);
+  --text-color: #fff;
   --border-color: #474749;
+  --wh-color-primary: rgb(48 127 255 / 30%);
 }
 
 @media (prefers-color-scheme: light) {
@@ -10,7 +11,8 @@
     --bg-color: #fff;
     --bg-color-80: rgb(255 255 255 / 80%);
     --text-color: #213547;
-    --border-color: #fff;
+    --border-color: #d1d1d2;
+    --wh-color-primary: rgb(230 81 0 / 30%);
   }
 
   a:hover {
@@ -26,7 +28,7 @@
 #map-container {
   .leaflet-control-scale-line {
     border-color: var(--border-color);
-    background: var(--bg-color-80);
+    background: var(--bg-color);
     color: var(--text-color);
     text-shadow: 1px 1px var(--bg-color);
   }

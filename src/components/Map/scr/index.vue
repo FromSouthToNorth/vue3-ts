@@ -278,8 +278,8 @@ export default defineComponent({
     max-height: 400px;
     overflow-x: scroll;
     border-radius: 4px;
-    background-color: var(--bg-color-80);
-    background-image: linear-gradient(155deg,rgb(48 127 255 / 30%),transparent 24%);
+    background-color: var(--bg-color);
+    background-image: linear-gradient(155deg,var(--wh-color-primary),transparent 24%);
     box-shadow: 0 0 15px rgb(0 0 0 / 20%);
     color: var(--text-color);
     font-size: 10px;
@@ -300,6 +300,5 @@ export default defineComponent({
       margin: 6px;
     }
   }
-
 }
 </style>

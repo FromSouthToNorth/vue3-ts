@@ -27,6 +27,7 @@
     "function-no-unknown": null,
     "selector-not-notation": null,
     "selector-class-pattern": null,
+    "no-missing-end-of-source-newline": true,
     "number-leading-zero": "never",
     "media-feature-range-notation": "prefix",
     "declaration-empty-line-before": "never",

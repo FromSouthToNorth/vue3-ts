@@ -22,13 +22,15 @@
   ],
   "rules": {
     "indentation": 2,
-    "no-eol-whitespace": true,
     "import-notation": null,
+    "no-eol-whitespace": true,
     "function-no-unknown": null,
     "selector-not-notation": null,
     "selector-class-pattern": null,
-    "no-missing-end-of-source-newline": true,
     "number-leading-zero": "never",
+    "alpha-value-notation": "number",
+    "color-function-notation": "legacy",
+    "no-missing-end-of-source-newline": true,
     "media-feature-range-notation": "prefix",
     "declaration-empty-line-before": "never",
     "selector-pseudo-class-no-unknown": [

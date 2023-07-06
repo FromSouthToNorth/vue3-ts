@@ -280,7 +280,7 @@ export default defineComponent({
     border-radius: 4px;
     background-color: var(--bg-color);
     background-image: linear-gradient(155deg,var(--wh-color-primary),transparent 24%);
-    box-shadow: 0 0 15px rgb(0 0 0 / 20%);
+    box-shadow: 0 0 15px rgba(0, 0, 0, .2);
     color: var(--text-color);
     font-size: 10px;
 

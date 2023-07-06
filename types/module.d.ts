@@ -1,7 +1,8 @@
 declare module 'leaflet'
 declare module L {
   function latLng(x, y)
-  return any
+  function bounds(_northEast, _southWest)
+  function geoJSON(geoJson, options)
 }
 declare module 'd3*'
 declare module '@turf*'

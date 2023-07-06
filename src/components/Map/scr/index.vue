@@ -90,7 +90,7 @@ export default defineComponent({
     })
 
     function projectPoint(x: any, y: any) {
-      const point = unref(map).latLngToLayerPoint(new L.LatLng(y, x))
+      const point = unref(map).latLngToLayerPoint(L.latLng(y, x))
       this.stream.point(point.x, point.y)
     }
 

@@ -176,30 +176,34 @@ export default defineComponent({
 .types {
   padding: 6px;
 }
+
 .types span {
   display: inline-flex;
   align-items: center;
   margin-right: 1em;
 }
+
 .licensing::before {
   content: "";
   width: 15px;
   height: 15px;
-  margin-right: 0.5em;
+  margin-right: .5em;
   background: #1f77b4;
 }
+
 .suit::before {
   content: "";
   width: 15px;
   height: 15px;
-  margin-right: 0.5em;
+  margin-right: .5em;
   background: #ff7f0e;
 }
+
 .resolved::before {
   content: "";
   width: 15px;
   height: 15px;
-  margin-right: 0.5em;
+  margin-right: .5em;
   background: #2ca02c;
 }
 </style>

@@ -45,6 +45,8 @@ export default defineComponent({
 
     const tagClasses = svgTagClasses()
 
+    const prefersDark = ref<boolean>(false)
+
     function areaJSONStyle(feature: any): any {
       return {
         className: `area ${feature.wid} ${tagClasses(feature)}`,
@@ -58,6 +60,7 @@ export default defineComponent({
     }
 
     onMounted(() => {
+      prefersDark.value = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
       if (d3.select('svg.svg-defs')
         .selectAll('marker')
         .empty()) {
@@ -72,8 +75,8 @@ export default defineComponent({
         zoom: 5,
         minZoom: 2,
         maxZoom: 24,
-        zoomSnap: 0.2,
-        wheelPxPerZoomLevel: 200,
+        zoomSnap: 0.5,
+        wheelPxPerZoomLevel: 500,
         center: [30.66071, 104.06167],
       })
       const _map: any = unref(map)
@@ -98,6 +101,17 @@ export default defineComponent({
       point: projectPoint,
     })
 
+    function settingTheme() {
+      prefersDark.value = !unref(prefersDark)
+      const dataTheme = unref(prefersDark) ? 'dark' : 'light'
+      d3.select('html').attr('data-theme', dataTheme)
+      d3.select('a.setting-theme')
+          .select('i')
+          .attr('class', unref(prefersDark) ?
+              'i-line-md:moon-rising-filled-loop' :
+              'i-line-md:moon-filled-alt-to-sunny-filled-loop-transition')
+    }
+
     function init(map: any) {
       // init dataSource
       switchLayer()
@@ -111,6 +125,23 @@ export default defineComponent({
         L.tileLayer(miniTileLayer.url),
         { toggleDisplay: true },
       ).addTo(map)
+
+      const settingControl = L.control({
+        position: 'topright',
+      })
+
+      settingControl.onAdd = () => {
+        const settings = L.DomUtil.create('div', 'setting')
+        const dataTheme = unref(prefersDark) ? 'i-line-md:moon-rising-filled-loop' : 'i-line-md:moon-filled-alt-to-sunny-filled-loop-transition'
+        const button = d3.select(settings)
+            .append('a')
+            .attr('class', 'setting-theme')
+        button.append('i').attr('class', dataTheme)
+        button.on('click', settingTheme)
+        return settings
+      }
+
+      settingControl.addTo(map)
 
       const legend = L.control({
         position: 'bottomleft',
@@ -271,7 +302,11 @@ export default defineComponent({
   width: 100%;
   height: 100%;
   overflow: hidden;
-  background: var(--bg-color);
+  background: var(--map-bg-color);
+
+  &, .legend, .leaflet-control-scale-line, .leaflet-control-container a {
+    transition: all .6s;
+  }
 
   .legend {
     display: block;
@@ -299,6 +334,46 @@ export default defineComponent({
       height: auto;
       margin: 6px;
     }
+  }
+
+  .setting {
+    a {
+      width: 30px;
+      height: 30px;
+      padding: 4px;
+      border: 2px solid var(--border-color);
+      border-radius: 2px;
+      background-color: var(--bg-color);
+      background-image: linear-gradient(155deg,var(--wh-color-primary),transparent 24%);
+      color: var(--text-color);
+      font-size: 24px;
+      line-height: 30px;
+
+      i {
+        color: var(--setting-theme-i-color);
+      }
+    }
+  }
+
+  .leaflet-control-scale-line {
+    border-color: var(--border-color);
+    background: var(--bg-color);
+    color: var(--text-color);
+    text-shadow: 1px 1px var(--bg-color);
+  }
+
+  .leaflet-bar a {
+    background: var(--bg-color);
+    color: var(--text-color);
+  }
+
+  .leaflet-control-minimap {
+    border: var(--border-color) solid;
+    background: var(--bg-color);
+  }
+
+  .leaflet-control-attribution {
+    background: var(--bg-color);
   }
 }
 </style>

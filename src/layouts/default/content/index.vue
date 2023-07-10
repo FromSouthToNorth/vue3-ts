@@ -26,7 +26,7 @@ export default defineComponent({
 </template>
 
 <style lang="less" scoped>
-  @prefix-cls: ~'@{namespace}-layout-content';
+@prefix-cls: ~'@{namespace}-layout-content';
 
 .@{prefix-cls} {
   position: relative;

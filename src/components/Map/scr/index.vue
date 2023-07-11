@@ -15,6 +15,7 @@ import login from '/@/assets/images/logo.png'
 import { behaviorHash } from '/@/hooks/core/useHash'
 import { GeometryTypeEnum } from '/@/enums/geometryTypeEnum'
 import { svgAreas, svgDefs, svgLabels, svgLines, svgPoints } from './svg'
+import { themeControl } from './control'
 
 import { geojson } from '/@/data'
 
@@ -45,8 +46,6 @@ export default defineComponent({
 
     const tagClasses = svgTagClasses()
 
-    const prefersDark = ref<boolean>(false)
-
     function areaJSONStyle(feature: any): any {
       return {
         className: `area ${feature.wid} ${tagClasses(feature)}`,
@@ -60,7 +59,6 @@ export default defineComponent({
     }
 
     onMounted(() => {
-      prefersDark.value = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
       if (d3.select('svg.svg-defs')
         .selectAll('marker')
         .empty()) {
@@ -101,17 +99,6 @@ export default defineComponent({
       point: projectPoint,
     })
 
-    function settingTheme() {
-      prefersDark.value = !unref(prefersDark)
-      const dataTheme = unref(prefersDark) ? 'dark' : 'light'
-      d3.select('html').attr('data-theme', dataTheme)
-      d3.select('a.setting-theme')
-          .select('i')
-          .attr('class', unref(prefersDark) ?
-              'i-line-md:moon-rising-filled-loop' :
-              'i-line-md:moon-filled-alt-to-sunny-filled-loop-transition')
-    }
-
     function init(map: any) {
       // init dataSource
       switchLayer()
@@ -132,12 +119,8 @@ export default defineComponent({
 
       settingControl.onAdd = () => {
         const settings = L.DomUtil.create('div', 'setting')
-        const dataTheme = unref(prefersDark) ? 'i-line-md:moon-rising-filled-loop' : 'i-line-md:moon-filled-alt-to-sunny-filled-loop-transition'
-        const button = d3.select(settings)
-            .append('a')
-            .attr('class', 'setting-theme')
-        button.append('i').attr('class', dataTheme)
-        button.on('click', settingTheme)
+        const render = themeControl()
+        render(settings)
         return settings
       }
 
